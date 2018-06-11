@@ -1,2 +1,2 @@
-# dEFT  - Differntial Effective Field Theory Fitter
+# dEFT  - A differential Effective Field Theory tool
 James Keaveney
