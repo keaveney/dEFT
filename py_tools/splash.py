@@ -11,7 +11,7 @@ def deft_splash(screen):
             int(screen.height / 2 - 8)),
         Cycle(
             screen,
-            FigletText("Differential Effective Field Theory Fitter", font='small'),
+            FigletText("A differential Effective Field Theory tool", font='small'),
             int(screen.height / 2 + 3)),
         Stars(screen, 900)
     ]
