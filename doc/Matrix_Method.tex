@@ -1,0 +1,89 @@
+\documentclass{article}
+\usepackage{graphicx}
+
+\begin{document}
+
+\title{\emph{Matrix method} for generation of differential EFT predictions}
+\author{James Keaveney}
+
+\maketitle
+
+\begin{abstract}
+The abstract text goes here.
+\end{abstract}
+
+\section{Introduction}
+
+\subsection{One operator}O_{i}
+
+\begin{equation}
+    \label{simple_equation}
+    \sigma^{incl.}_{EFT} = \sigma_{SM} + \frac{c_{i}}{\Lambda^{2}}\beta_{1} + \frac{c^{2}_{i}}{\Lambda^{4}}\beta_{2}
+\end{equation}
+
+
+\begin{equation}
+    \label{simple_equation}
+\frac{\mathrm{d}\sigma_{EFT}}{\mathrm{d}X}} = \frac{\mathrm{d}\sigma_{SM}}{\mathrm{d}X}}} + \frac{c_{i}}{\Lambda^{2}} \frac{\mathrm{d}\sigma_{SM-O_{i}}}{\mathrm{d}X}}} + \frac{c^{2}_{i}}{\Lambda^{4}} \frac{\mathrm{d}\sigma_{O_{i}-O_{i}}}{\mathrm{d}X}}}
+\end{equation}
+
+
+\begin{equation}
+\tiny
+    \label{simple_equation}
+\frac{\mathrm{d}\sigma^{(c_{i}/\Lambda^{2} = a)}_{EFT}}{\mathrm{d}X}}  - \frac{\mathrm{d}\sigma^{(c_{i}/\Lambda^{2}  = -a)}_{EFT}}{\mathrm{d}X}}  = \frac{\mathrm{d}\sigma_{SM}}{\mathrm{d}X}}} - \frac{\mathrm{d}\sigma_{SM}}{\mathrm{d}X}}} + (a)\frac{\mathrm{d}\sigma_{SM-O_{i}}}{\mathrm{d}X}}} - (-a)\frac{\mathrm{d}\sigma_{SM-O_{i}}}{\mathrm{d}X}}} +  (a^2) \frac{\mathrm{d}\sigma_{O_{i}-O_{i}}}{\mathrm{d}X}}} - (-a^2) \frac{\mathrm{d}\sigma_{O_{i}-O_{i}}}{\mathrm{d}X}}}
+    \end{equation}
+
+\begin{equation}
+\tiny
+    \label{simple_equation}
+\frac{1}{2a}( \frac{\mathrm{d}\sigma^{(c_{i}/\Lambda^{2} = a)}_{EFT}}{\mathrm{d}X}}  - \frac{\mathrm{d}\sigma^{(c_{i}/\Lambda^{2} = -a)}_{EFT}}{\mathrm{d}X}} ) =  \frac{\mathrm{d}\sigma_{SM-O_{i}}}{\mathrm{d}X}}} 
+    \end{equation}
+
+
+\begin{equation}
+\tiny
+\label{simple_equation}
+\frac{\mathrm{d}\sigma^{(c_{i}/\Lambda^{2} = p)}_{EFT}}{\mathrm{d}X}}  =  \frac{\mathrm{d}\sigma_{SM}}{\mathrm{d}X}}} + (p) \cdot \frac{1}{2a}( \frac{\mathrm{d}\sigma^{(c_{i}/\Lambda^{2} = a)}_{EFT}}{\mathrm{d}X}}  - \frac{\mathrm{d}\sigma^{(c_{i}/\Lambda^{2} = -a)}_{EFT}}{\mathrm{d}X}} )
+    \end{equation}
+    
+\subsection{Two operators}
+
+\begin{equation}
+    \label{simple_equation}
+\frac{\mathrm{d}\sigma^{(i,j)}_{EFT}}{\mathrm{d}X}} = \frac{\mathrm{d}\sigma_{SM}}{\mathrm{d}X}}} + \frac{c_{i}}{\Lambda^{2}} \frac{\mathrm{d}\sigma_{SM-O_i}}{\mathrm{d}X}}} + \frac{c_{j}}{\Lambda^{2}} \frac{\mathrm{d}\sigma_{SM-O_j}}{\mathrm{d}X}}} +  2\cdot\frac{c_{i}c_{j}}{\Lambda^{4}} \frac{\mathrm{d}\sigma_{O_{i}-O_{j}}}{\mathrm{d}X}}}  +    \frac{c^{2}_{i}}{\Lambda^{4}} \frac{\mathrm{d}\sigma_{O_{i}-O_{i}}}{\mathrm{d}X}}}   +   \frac{c^{2}_{j}}{\Lambda^{4}} \frac{\mathrm{d}\sigma_{O_{j}-O_{j}}}{\mathrm{d}X}}}
+\end{equation}
+
+
+\begin{equation}
+\label{simple_equation}
+\frac{\mathrm{d}\sigma^{(a,-a)}_{EFT}}{\mathrm{d}X}} + \frac{\mathrm{d}\sigma^{(-a,a)}_{EFT}}{\mathrm{d}X}} =  2 \cdot \frac{\mathrm{d}\sigma_{SM}}{\mathrm{d}X}}} + 2\cdot (-a^2) \frac{\mathrm{d}\sigma_{O_{i}-O_{j}}}{\mathrm{d}X}}} + 2\cdot (-a^2) \frac{\mathrm{d}\sigma_{O_{i}-O_{j}}}{\mathrm{d}X}}} +  (a^2) \frac{\mathrm{d}\sigma_{O_{i}-O_{i}}}{\mathrm{d}X}}}   +  (a^2) \frac{\mathrm{d}\sigma_{O_{j}-O_{j}}}{\mathrm{d}X}}}
+\end{equation}
+
+
+\begin{equation}
+\label{simple_equation}
+\frac{\mathrm{d}\sigma^{(a,-a)}_{EFT}}{\mathrm{d}X}} - \frac{\mathrm{d}\sigma^{(-a,a)}_{EFT}}{\mathrm{d}X}} = 2a \cdot \frac{\mathrm{d}\sigma_{SM-O_i}}{\mathrm{d}X}}} - 2a \cdot \frac{\mathrm{d}\sigma_{SM-O_j}}{\mathrm{d}X}}} \end{equation}
+
+
+
+\begin{equation}
+    \label{simple_equation}
+\frac{\mathrm{d}\sigma^{(a,a)}_{EFT}}{\mathrm{d}X}} - \frac{\mathrm{d}\sigma^{(-a,-a)}_{EFT}}{\mathrm{d}X}} = 2a \cdot \frac{\mathrm{d}\sigma_{SM-O_i}}{\mathrm{d}X}}} + 2a \cdot \frac{\mathrm{d}\sigma_{SM-O_j}}{\mathrm{d}X}}} 
+\end{equation}
+
+
+
+
+\subsection{Subsection Heading Here}
+
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=3.0in]{myfigure}
+%    \caption{Simulation Results}
+%   \label{simulationfigure}
+%\end{figure}
+
+\section{Conclusion}
+
+\end{document}
