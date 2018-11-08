@@ -9,7 +9,6 @@ import emcee
 import time
 import json
 
-
 #intro graphics
 Screen.wrapper(splash.deft_splash)
 
@@ -38,7 +37,6 @@ icov = np.linalg.inv(cov)
 coefficients = ["ctg", "ctw", "ctphi", "ctb", "cphit", "cphiQ1", "cphiQ3"]
 ndim = len(coefficients)
 
-
 preds =  {
                 'SM': np.array([3.0,3.0,3.0, 3.0,3.0,3.0, 3.0]),
                 'ctg-': np.array([2.0,3.0,3.0,3.0,3.0,3.0,3.0]),
@@ -57,8 +55,7 @@ preds =  {
                 'cphiQ3+': np.array([3.0,3.0,3.0,3.0,3.0,3.0,4.0])
 }
 
-
-#just generate some dummy cross predictions
+#just generate some dummy cross-term predictions
 for c in coefficients:
     ci_m_name = c + "-"
     ci_p_name = c + "+"
@@ -71,7 +68,6 @@ for c in coefficients:
             #wild guess
             preds[ci_cj_m_name] = preds[ci_m_name] + preds[cj_m_name] - (0.8*preds['SM'])
             preds[ci_cj_p_name] = preds[ci_p_name] + preds[cj_p_name] - (0.8*preds['SM'])
-
 
 priors =  {
         'ctg': np.array([-3.0,3.0]),
