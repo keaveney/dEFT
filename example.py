@@ -8,6 +8,10 @@ import corner
 import emcee
 import time
 import json
+from config import *
+import json
+import sys
+from configReader import configReader
 
 #intro graphics
 Screen.wrapper(splash.deft_splash)
@@ -15,87 +19,17 @@ Screen.wrapper(splash.deft_splash)
 #start time
 start = time.time()
 
-######################################################
-###############   DEFINE THE DATA   ##################
-######################################################
-#bins
-bins = np.array([-1.5, -0.5, 0.5, 1.5, 2.5, 3.5, 4.5])
-nbins = len(bins)
 
-#data
-data = (4.0)*(np.array([7.0, 7.0, 3.0, 3.0, 3.0, 7.0, 7.0]))
+filename = sys.argv[1]
 
-#covariance matrix and inverse
-cov = [[1.0, 0.7, 0.0, 0.0, 0.0, 0.0, 0.0], [0.7, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0], [0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0], [0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0],[0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0],[0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5], [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0]]
-icov = np.linalg.inv(cov)
+config = configReader()
 
-######################################################
-###############   DEFINE THE MODEL   #################
-######################################################
+config.init(filename)
 
-#list of coeffieicnts/operators to be considered
-coefficients = ["ctg", "ctw", "ctphi", "ctb", "cphit", "cphiQ1", "cphiQ3"]
-ndim = len(coefficients)
-
-preds =  {
-                'SM': np.array([3.0,3.0,3.0, 3.0,3.0,3.0, 3.0]),
-                'ctg-': np.array([2.0,3.0,3.0,3.0,3.0,3.0,3.0]),
-                'ctg+': np.array([4.0,3.0,3.0,3.0,3.0,3.0,3.0]),
-                'ctw-': np.array([3.0,2.0,3.0,3.0,3.0,3.0,3.0]),
-                'ctw+': np.array([3.0,4.0,3.0,3.0,3.0,3.0,3.0]),
-                'ctphi-': np.array([3.0,3.0,2.0,3.0,3.0,3.0,3.0]),
-                'ctphi+': np.array([3.0,3.0,4.0,3.0,3.0,3.0,3.0]),
-                'ctb-': np.array([3.0,3.0,3.0,2.0,3.0,3.0,3.0]),
-                'ctb+': np.array([3.0,3.0,3.0,4.0,3.0,3.0,3.0]),
-                'cphit-': np.array([3.0,3.0,3.0,3.0,2.0,3.0,3.0]),
-                'cphit+': np.array([3.0,3.0,3.0,3.0,4.0,3.0,3.0]),
-                'cphiQ1-': np.array([3.0,3.0,3.0,3.0,3.0,2.0,3.0]),
-                'cphiQ1+': np.array([3.0,3.0,3.0,3.0,3.0,4.0,3.0]),
-                'cphiQ3-': np.array([3.0,3.0,3.0,3.0,3.0,3.0,2.0]),
-                'cphiQ3+': np.array([3.0,3.0,3.0,3.0,3.0,3.0,4.0])
-}
-
-#just generate some dummy cross-term predictions
-for c in coefficients:
-    ci_m_name = c + "-"
-    ci_p_name = c + "+"
-    for d in coefficients:
-        if c != d:
-            cj_m_name = c + "-"
-            cj_p_name = c + "+"
-            ci_cj_m_name = c + "-" + d + "-"
-            ci_cj_p_name = c + "+" + d + "+"
-            #wild guess
-            preds[ci_cj_m_name] = preds[ci_m_name] + preds[cj_m_name] - (0.8*preds['SM'])
-            preds[ci_cj_p_name] = preds[ci_p_name] + preds[cj_p_name] - (0.8*preds['SM'])
-
-priors =  {
-        'ctg': np.array([-3.0,3.0]),
-        'ctw': np.array([-3.0,3.0]),
-        'ctphi': np.array([-3.0,3.0]),
-        'ctb': np.array([-3.0,3.0]),
-        'cphit': np.array([-3.0,3.0]),
-        'cphiQ1': np.array([-3.0,3.0]),
-        'cphiQ3': np.array([-3.0,3.0])
-}
-
-#maximum power of c_i/Lambda^2 to be considered
-# this can only be 1 or 2
-# 1: Lambda^{-2} - interference between diagrams with single dim6 operator and SM diagrams
-# 2: Lambda^{-2} + Lambda^{-4} - the above with the 'squared' terms (diagrams with single dim6 operator squared)
-#                                  and 'cross' terms (interefernece between pairs of diagrams with single dim6 operator each)
-max_coeff_power = 2
-
-#the tricky part - list of predictions for data and for +/- X for each coefficient
-# if max_coeff_power = 1, and more than one operator is being considred,
-# this dictonary also needs predictions for (ci,cj) = (X,X)
-# for all pairs of operators
-
-# for now assume all input predictions correspond to c_i = +/- 2.0
-c_i_benchmark = 2.0
+print config.params["config"]["data"]["bins"]
 
 
-def make_basis(preds,coefficients,max_coeff_power):
+def make_basis(preds,coefficients,max_coeff_power,c_i_benchmark):
     pred_basis = {}
     for c in coefficients:
         ci_m_name = c + "-"
@@ -128,28 +62,28 @@ def make_basis(preds,coefficients,max_coeff_power):
 
     return pred_basis
 
-pred_basis = make_basis(preds,coefficients,max_coeff_power)
+pred_basis = make_basis(config.predictions,config.coefficients,config.params["config"]["model"]["max_coeff_power"],config.params["config"]["model"]["c_i_benchmark"] )
 
 def make_pred(c):
     pred = np.zeros(nbins)
-    for ci in range(0, len(coefficients)):
-        basis_ci_sm_name = coefficients[ci] + "_sm"
-        basis_ci_ci_name = coefficients[ci] + "_" + coefficients[ci]
+    for ci in range(0, len(config.coefficients)):
+        basis_ci_sm_name = config.coefficients[ci] + "_sm"
+        basis_ci_ci_name = config.coefficients[ci] + "_" + config.coefficients[ci]
 
         ci_sm_contrib = (c[ci]*pred_basis[basis_ci_sm_name])
         ci_ci_contrib = ((c[ci]**2)*pred_basis[basis_ci_ci_name])
 
         pred += ci_sm_contrib
-        pred += ci_ci_contrib
+    #pred += ci_ci_contrib
                        
-    pred = pred + preds['SM']
+    pred = pred + config.predictions['SM']
     return pred
 
 def lnprior(c):
     #one could play with implementing non-flat priors here
     lnp = 0.0
-    for c in coefficients:
-        if ((c < priors[c][0]) | (c > priors[c][1])):
+    for c in config.coefficients:
+        if ((c < config.prior_limits[c][0]) | (c > config.prior_limits[c][1])):
             prob = -np.inf
     return lnp
 
@@ -184,14 +118,14 @@ print "uncertainties = " + str(np.sqrt(np.diag(mcmc_params_cov)))
 ######################################################
 # raw predictions and data
 pl.figure()
-for c in range(0,len(coefficients)):
+for c in range(0,len(config.coefficients)):
     vals = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
     vals[c] = 1.0
-    label_string = coefficients[c] + "=1.0"
+    label_string = config.coefficients[c] + "=1.0"
     pl.errorbar(bins, make_pred(vals), xerr=0.0, yerr=0.0, label=label_string)
-pl.errorbar(bins, preds['SM'], xerr=0.0, yerr=0.0, label='SM')
-pl.errorbar(bins, data, fmt="o",xerr=0.25, yerr=0.05, label='Data')
-pl.axis([bins[0]-0.25, bins[nbins-1]+0.25, -5.0, 10.0])
+pl.errorbar(config.params["config"]["data"]["bins"], config.predictions['SM'], xerr=0.0, yerr=0.0, label='SM')
+pl.errorbar(config.params["config"]["data"]["bins"], config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=0.05, label='Data')
+pl.axis([config.params["config"]["data"]["bins"][0]-0.25, config.params["config"]["data"]["bins"][nbins-1]+0.25, -5.0, 10.0])
 pl.legend()
 #pl.show()
 
