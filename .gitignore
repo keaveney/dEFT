@@ -7,3 +7,12 @@
 *.aux
 doc/*
 *.DS_Store
+
+#unpusblished analyses
+analyses/CMS-TOP-18-006.json
+
+#root files for inputs (possibly with unlublished data)
+root_inputs/*
+
+#emacs auto-backups
+*~
