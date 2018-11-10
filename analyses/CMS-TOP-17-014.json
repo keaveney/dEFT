@@ -31,12 +31,13 @@
             "ctg": [-3.0,3.0]
             },
         "max_coeff_power":1,
-        "c_i_benchmark":2
+        "c_i_benchmark":2,
+        "cross_terms":"false"
         },
      "fit":
         {
-            "n_walkers": 200,
-            "n_burnin": 500,
+            "n_walkers": 100,
+            "n_burnin": 100,
             "n_total":  2000
         }
     }

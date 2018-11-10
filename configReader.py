@@ -17,8 +17,15 @@ class configReader:
         self.n_walkers = self.params["config"]["fit"]["n_walkers"]
         self.n_burnin = self.params["config"]["fit"]["n_burnin"]
         self.n_total = self.params["config"]["fit"]["n_total"]
+        self.cov = self.params["config"]["data"]["covariance_matrix"]
         self.icov = inv(self.params["config"]["data"]["covariance_matrix"])
         self.x_vals = self.params["config"]["data"]["bins"]
+        self.cross_terms = self.params["config"]["model"]["cross_terms"]
+        slabels=[]
+        for c in self.coefficients:
+            slab = "$" + c + "$"
+            slabels.append(slab)
+        self.labels = slabels
         x_vals = np.zeros(len(self.x_vals)-1)
         for x_val in range(0, len(self.params["config"]["data"]["bins"])-1):
             x_vals[x_val] = (self.params["config"]["data"]["bins"][x_val] + self.params["config"]["data"]["bins"][x_val+1])/2.0
