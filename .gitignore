@@ -1,0 +1,8 @@
+# ignore all logs
+*.log
+*.pyc
+*.xcworkspace
+*.png
+*.pdf
+*.aux
+doc/*
