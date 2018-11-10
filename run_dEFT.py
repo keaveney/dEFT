@@ -8,7 +8,7 @@ import time
 import json
 import sys
 import matplotlib.pyplot as pl
-from configReader import configReader
+from tools.configReader import configReader
 
 #intro graphics
 Screen.wrapper(splash.deft_splash)
