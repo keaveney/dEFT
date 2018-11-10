@@ -12,6 +12,8 @@ class configReader:
         with open(filename, 'r') as f:
             config = json.load(f)
         self.params = config
+        self.run_name = self.params["config"]["run_name"]
+        self.observable = self.params["config"]["data"]["observable"]
         self.prior_limits = self.params["config"]["model"]["prior_limits"]
         self.coefficients = self.params["config"]["model"]["prior_limits"].keys()
         self.n_walkers = self.params["config"]["fit"]["n_walkers"]
