@@ -16,14 +16,24 @@ class summaryPlotter:
             for c in range(0,len(config.coefficients)):
                 valsp[c] = 1.0
                 valsn[c] = -1.0
-                label_stringp = config.coefficients[c] + "=1.0"
-                label_stringn = config.coefficients[c] + "=-1.0"
+                label_stringp = config.coefficients[c] + "/$\Lambda^{2}$" + " = 1.0 " + "[TeV$^{-2}$]"
+                label_stringn = config.coefficients[c] + "/$\Lambda^{2}$" + " = -1.0 " + "[TeV$^{-2}$]"
             pl.errorbar(config.x_vals, pb.make_pred(valsp), xerr=0.0, yerr=0.0, label=label_stringp)
             pl.errorbar(config.x_vals, pb.make_pred(valsn), xerr=0.0, yerr=0.0, label=label_stringn)
             pl.errorbar(config.x_vals, config.predictions['SM'], xerr=0.0, yerr=0.0, label='SM')
-            pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=0.05, label='Data')
-            pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, 0.0, 7.0])
-            pl.legend()
+            data_label = "Data" + " (" + config.run_name + ")"
+            pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=0.05, label=data_label)
+            pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, 0.0, 600.0])
+            #pl.xlabel(config.observable, fontdict=None, labelpad=None)
+            ax = pl.gca()
+            #ax.set_xticks(np.arange(0,6,1))
+            labely = ax.set_xlabel(config.observable, fontsize = 18)
+            ax.xaxis.set_label_coords(0.75, -0.065)
+            #ylabel = "d$\sigma$/d$\delta\phi(ll)$ [pb]"
+            ylabel = "$\sigma_{tt}$ [pb]"
+            labely = ax.set_ylabel(ylabel, fontsize = 18)
+            ax.yaxis.set_label_coords(-0.037, 0.83)
+            pl.legend(loc=2)
 
             plotfilename = config.params["config"]["run_name"] +"_predictions.png"
 
