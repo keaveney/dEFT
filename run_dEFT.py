@@ -47,7 +47,7 @@ def lnprob(c, data, icov):
 ###############   DEFINE THE FIT/SCAN   ##############
 ######################################################
 nWalkers = config.n_walkers
-ndim = len(config.coefficients)
+ndim = int((len(config.predictions) - 1.0)/2.0)
 nBurnIn = config.n_burnin
 nTotal = config.n_total
 
@@ -70,6 +70,9 @@ print "best fit vals = " + str(mcmc_params)
 #print "uncertainties = " + str(np.sqrt(np.diag(mcmc_params_cov)))
 
 sp = summaryPlotter()
+
+
+print "Summarising: pb =  "  +  str(ndim) + " samples=  " + str(samples)
 
 sp.summarise(config, pb, samples)
 

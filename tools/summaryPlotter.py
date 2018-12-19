@@ -2,8 +2,6 @@ import matplotlib.pyplot as pl
 import numpy as np
 import corner
 
-
-
 class summaryPlotter:
     def summarise(self, config, pb, samples):
             pl.figure()
@@ -54,10 +52,18 @@ class summaryPlotter:
             #                       show_titles=True, title_kwargs={"fontsize": 18})
 
             #read in slabels from config
-
-            fig = corner.corner(samples, labels=config.labels,
+            
+            labels = []
+            ranges  = []
+            for c in config.params["config"]["model"]["prior_limits"].keys():
+                label = "$" + c + "$"
+                labels.append(label)
+                ranges.append(1.0)
+            
+            
+            fig = corner.corner(samples, labels=labels,
                                 quantiles=[0.05, 0.95],
-                                range=[1.0], truths=np.zeros(len(config.coefficients)),
+                                range=ranges, truths=np.zeros(len(labels)),
                                 show_titles=True, title_kwargs={"fontsize": 18})
 
             plotfilename = config.params["config"]["run_name"] + ".png"

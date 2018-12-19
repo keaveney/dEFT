@@ -22,7 +22,7 @@ class predBuilder:
                             if c != d:
                                 ci_cj_m_name = c + "-" + d + "-"
                                 ci_cj_p_name = c + "+" + d + "+"
-                                sigma_ci_cj=(np.add(preds[ci_cj_m_name],preds[ci_cj_p_name])-(2.0*preds['SM'])-(2.0*(sigma_ci_ci**2))-(2.0*(sigma_cj_cj**2)))/(2*(c_i_benchmark**2))
+                                sigma_ci_cj=(np.add(preds[ci_cj_m_name],preds[ci_cj_p_name])-(2.0*preds['SM'])-(2.0*(sigma_ci_ci**2))-(2.0*(sigma_cj_cj**2)))/(2*(c_i_benchmark**2))# den. should be 2*(c_i_bench)*(c_j_bench)
                             else:
                                 sigma_ci_cj = np.zeros(len(preds['SM']))
                             basis_ci_cj_name = c + "_" + d
@@ -48,5 +48,6 @@ class predBuilder:
                 pred += ci_sm_contrib
                 if (self.max_coeff_power > 1):
                     pred += ci_ci_contrib
+                #add option for cross terms (if self.max_coeff_power == ) ...etc.
             pred = pred + self.predictions['SM']
             return pred
