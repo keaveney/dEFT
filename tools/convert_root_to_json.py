@@ -1,5 +1,8 @@
 from ROOT import *
 import ROOT
+
+"""
+import ROOT
 f = TFile("root_inputs/nlo_ctG_p2_lhe_nom_pt_nom_xxx.root")
 h = f.Get("TTbarSpinDensityMatrix/snake_spinCorr_part_cut_0")
 
@@ -43,8 +46,9 @@ cov = f3.Get("TotalStatSystCovMatrix_AllVar_rebinnedB")
 #print "]"
 #print "]"
 
-
 """
+
+
     #TOP-17-014
 f = TFile("/Users/keaveney/EFT_Fitter/EFT_Fitter/files/CtG_2_nominal_v10.root")
 h = f.Get("CMS_dilepton_diff/ll_delphi_abs")
@@ -80,9 +84,10 @@ for bin in range(0,h.GetNbinsX()):
 print "]"
 
 f3 = TFile("/Users/keaveney/EFT_Fitter/EFT_Fitter/files/Nov1/particle/absolute/covariance/HypLLBarDPhi_totCovEnvXSMtrxFile.root")
+cov = f3.Get("cov")
 
-cov = f3.Get("inv_cov")
-
+print "cov matrix  = "
+print "  "
 print "[",
 for bini in range(0,cov.GetNbinsX()):
     print "[",
@@ -92,4 +97,3 @@ for bini in range(0,cov.GetNbinsX()):
     print "]"
 print "]"
 
-"""

@@ -21,7 +21,9 @@ class summaryPlotter:
             pl.errorbar(config.x_vals, config.predictions['SM'], xerr=0.0, yerr=0.0, label='SM')
             data_label = "Data" + " (" + config.run_name + ")"
             pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=0.05, label=data_label)
-            pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, 0.0, 600.0])
+            max_val = (1.5)*(max(config.params["config"]["data"]["central_values"]))
+            min_val = (0.5)*(min(config.params["config"]["data"]["central_values"]))
+            pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, min_val, max_val])
             #pl.xlabel(config.observable, fontdict=None, labelpad=None)
             ax = pl.gca()
             #ax.set_xticks(np.arange(0,6,1))
@@ -37,7 +39,7 @@ class summaryPlotter:
 
             pl.savefig(plotfilename)
 
-            pl.show()
+            #pl.show()
 
             #best fit prediction and data
             #TODO
@@ -73,7 +75,7 @@ class summaryPlotter:
             fig = pl.figure(figsize=(6, 3.2))
             ax = fig.add_subplot(111)
             ax.set_title('colorMap')
-            pl.imshow(config.cov, interpolation='nearest')
+            #pl.imshow(config.cov, interpolation='nearest')
             ax.set_aspect('equal')
 
             cax = fig.add_axes([0.12, 0.1, 0.78, 0.8])
@@ -82,7 +84,7 @@ class summaryPlotter:
             cax.patch.set_alpha(0)
             cax.set_frame_on(False)
             pl.colorbar(orientation='vertical')
-            pl.show()
+            #pl.show()
 
 
 
