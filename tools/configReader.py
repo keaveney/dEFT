@@ -1,6 +1,7 @@
 import json
 import numpy as np
 from numpy.linalg import inv
+from tools import yoda2array
 
 class configReader:
     def init(self, filename):
@@ -34,9 +35,12 @@ class configReader:
         self.x_vals = x_vals
 
         for predname in self.params["config"]["model"]["predictions"].keys():
-            predictions[predname] = np.asarray(self.params["config"]["model"]["predictions"][predname])
+            print "predname" + str(self.params["config"]["model"]["predictions"][predname])
+            if (isinstance(self.params["config"]["model"]["predictions"][predname], basestring)):
+                predictions[predname] = yoda2array.convert(self.params["config"]["model"]["predictions"][predname], self.params["config"]["model"]["histname"])
+            else:
+                predictions[predname] = np.asarray(self.params["config"]["model"]["predictions"][predname])
         self.predictions = predictions
-
 
 
 
