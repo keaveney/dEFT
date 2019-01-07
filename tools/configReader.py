@@ -35,7 +35,6 @@ class configReader:
         self.x_vals = x_vals
 
         for predname in self.params["config"]["model"]["predictions"].keys():
-            print "predname" + str(self.params["config"]["model"]["predictions"][predname])
             if (isinstance(self.params["config"]["model"]["predictions"][predname], basestring)):
                 predictions[predname] = yoda2array.convert(self.params["config"]["model"]["predictions"][predname], self.params["config"]["model"]["histname"])
             else:
