@@ -2,7 +2,6 @@
     so that the user can directly suppply the yoda file as input into a dEFT
     fit
 """
-
 import numpy as np
 
 def convert(yodafile, histname):

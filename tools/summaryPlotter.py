@@ -5,7 +5,7 @@ import corner
 class summaryPlotter:
     def summarise(self, config, pb, samples):
             pl.figure()
-
+            print "summaryPlotter 0"
             print "pred len " + str (config.params["config"]["data"]["bins"])
             print "sm pred len  " + str (config.predictions['SM'])
 
@@ -20,6 +20,9 @@ class summaryPlotter:
             pl.errorbar(config.x_vals, pb.make_pred(valsn), xerr=0.0, yerr=0.0, label=label_stringn)
             pl.errorbar(config.x_vals, config.predictions['SM'], xerr=0.0, yerr=0.0, label='SM')
             data_label = "Data" + " (" + config.run_name + ")"
+            
+            print "summaryPlotter 1"
+
             pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=0.05, label=data_label)
             max_val = (1.5)*(max(config.params["config"]["data"]["central_values"]))
             min_val = (0.5)*(min(config.params["config"]["data"]["central_values"]))
@@ -30,14 +33,22 @@ class summaryPlotter:
             labely = ax.set_xlabel(config.observable, fontsize = 18)
             ax.xaxis.set_label_coords(0.75, -0.065)
             #ylabel = "d$\sigma$/d$\delta\phi(ll)$ [pb]"
+            print "summaryPlotter 1.1"
             ylabel = "$\sigma_{tt}$ [pb]"
             labely = ax.set_ylabel(ylabel, fontsize = 18)
             ax.yaxis.set_label_coords(-0.037, 0.83)
             pl.legend(loc=2)
+            print "summaryPlotter 1.2"
 
-            plotfilename = config.params["config"]["run_name"] +"_predictions.png"
+            plotfilename = str(config.params["config"]["run_name"] +"_predictions.png")
+            print "summaryPlotter 1.3"
+
+
+            print "summaryPlotter 1.3, saving plotfilename = " + str(plotfilename)
 
             pl.savefig(plotfilename)
+            print "summaryPlotter 2.1"
+
 
             #pl.show()
 
@@ -61,6 +72,8 @@ class summaryPlotter:
                 label = "$" + c + "$"
                 labels.append(label)
                 ranges.append(1.0)
+            print "summaryPlotter 2.1"
+
             
             
             fig = corner.corner(samples, labels=labels,
@@ -70,7 +83,10 @@ class summaryPlotter:
 
             plotfilename = config.params["config"]["run_name"] + ".png"
 
+            print "summaryPlotter 3"
+
             fig.savefig(plotfilename)
+
 
             fig = pl.figure(figsize=(6, 3.2))
             ax = fig.add_subplot(111)
@@ -82,8 +98,10 @@ class summaryPlotter:
             cax.get_xaxis().set_visible(False)
             cax.get_yaxis().set_visible(False)
             cax.patch.set_alpha(0)
+            print "summaryPlotter 4"
+
             cax.set_frame_on(False)
-            pl.colorbar(orientation='vertical')
+            #pl.colorbar(orientation='vertical')
             #pl.show()
 
 
