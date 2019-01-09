@@ -10,13 +10,16 @@ def convert(yodafile, histname):
     read = "false"
     central_values = []
 
+    print "converting " + str(yodafile)
     with open(yodafile, 'r') as f:
         for line in f:
             if ( ("BEGIN" in line) & (histname in line)):
                 read = "true"
             if (read == "true"):
                 if ((len(line.split("\t")) == 7) & (line.split("\t")[0] not in ignore_strings) ):
-                    central_values.append(float(line.split("\t")[2]))
+                    print "LINE " + str(line)
+                    bin_width = float(line.split("\t")[1]) - float(line.split("\t")[0])
+                    central_values.append(float(line.split("\t")[2]) / bin_width )
             if ("END" in line):
                 read = "false"
     return  np.asarray(central_values)

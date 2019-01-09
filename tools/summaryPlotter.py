@@ -3,79 +3,66 @@ import numpy as np
 import corner
 
 class summaryPlotter:
-    def summarise(self, config, pb, samples):
-            pl.figure()
+    def summarise(self, config, pb, samples, mcmc_params):
             print "summaryPlotter 0"
             print "pred len " + str (config.params["config"]["data"]["bins"])
             print "sm pred len  " + str (config.predictions['SM'])
+            data_label = "Data" + " (" + config.run_name + ")"
+            max_val = (1.5)*(max(config.params["config"]["data"]["central_values"]))
+            min_val = (0.0)*(min(config.params["config"]["data"]["central_values"]))
+            xlabel = config.observable
+            ylabel = "d$\sigma_{tt}$/dX"
 
-            valsp = np.zeros(len(config.coefficients))
-            valsn = np.zeros(len(config.coefficients))
+            #first make plots of basis predictions versus data
             for c in range(0,len(config.coefficients)):
+                valsp = np.zeros(len(config.coefficients))
+                valsn = np.zeros(len(config.coefficients))
                 valsp[c] = 1.0
                 valsn[c] = -1.0
                 label_stringp = config.coefficients[c] + "/$\Lambda^{2}$" + " = 1.0 " + "[TeV$^{-2}$]"
                 label_stringn = config.coefficients[c] + "/$\Lambda^{2}$" + " = -1.0 " + "[TeV$^{-2}$]"
-            pl.errorbar(config.x_vals, pb.make_pred(valsp), xerr=0.0, yerr=0.0, label=label_stringp)
-            pl.errorbar(config.x_vals, pb.make_pred(valsn), xerr=0.0, yerr=0.0, label=label_stringn)
-            pl.errorbar(config.x_vals, config.predictions['SM'], xerr=0.0, yerr=0.0, label='SM')
-            data_label = "Data" + " (" + config.run_name + ")"
+                pl.figure()
+                pl.errorbar(config.x_vals, pb.make_pred(valsp), xerr=0.0, yerr=0.0, label=label_stringp)
+                pl.errorbar(config.x_vals, pb.make_pred(valsn), xerr=0.0, yerr=0.0, label=label_stringn)
+                pl.errorbar(config.x_vals, config.predictions['SM'], xerr=0.0, yerr=0.0, label='SM')
+                pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=0.05, label=data_label)
+                pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, min_val, max_val])
+                ax = pl.gca()
+                labely = ax.set_xlabel(xlabel, fontsize = 18)
+                ax.xaxis.set_label_coords(0.85, -0.065)
+                labely = ax.set_ylabel(ylabel, fontsize = 18)
+                ax.yaxis.set_label_coords(-0.037, 0.83)
+                pl.legend(loc=2)
+                plotfilename = str(config.params["config"]["run_name"] + "_" + config.coefficients[c] + "_predictions.png")
+                pl.savefig(plotfilename)
             
-            print "summaryPlotter 1"
+            #second make plots of best fit prediction versus data
+            pl.figure()
+            label_string_bestfit = "best-fit: ("
+            for c in range(0, len(config.coefficients)):
+                if (c == (len(config.coefficients) - 1)):
+                    label_string_bestfit = label_string_bestfit + config.coefficients[c] + " = " + '%.3f' % mcmc_params[c] + ")"
+                else:
+                    label_string_bestfit = label_string_bestfit + config.coefficients[c] + " = " + '%.3f' % mcmc_params[c] + ", "
 
+            pl.errorbar(config.x_vals, pb.make_pred(mcmc_params), fmt="m", xerr=0.0, yerr=0.0, label=label_string_bestfit)
             pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=0.05, label=data_label)
-            max_val = (1.5)*(max(config.params["config"]["data"]["central_values"]))
-            min_val = (0.5)*(min(config.params["config"]["data"]["central_values"]))
             pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, min_val, max_val])
-            #pl.xlabel(config.observable, fontdict=None, labelpad=None)
             ax = pl.gca()
-            #ax.set_xticks(np.arange(0,6,1))
-            labely = ax.set_xlabel(config.observable, fontsize = 18)
-            ax.xaxis.set_label_coords(0.75, -0.065)
-            #ylabel = "d$\sigma$/d$\delta\phi(ll)$ [pb]"
-            print "summaryPlotter 1.1"
-            ylabel = "$\sigma_{tt}$ [pb]"
+            labely = ax.set_xlabel(xlabel, fontsize = 18)
             labely = ax.set_ylabel(ylabel, fontsize = 18)
+            ax.xaxis.set_label_coords(0.85, -0.065)
             ax.yaxis.set_label_coords(-0.037, 0.83)
             pl.legend(loc=2)
-            print "summaryPlotter 1.2"
-
-            plotfilename = str(config.params["config"]["run_name"] +"_predictions.png")
-            print "summaryPlotter 1.3"
-
-
-            print "summaryPlotter 1.3, saving plotfilename = " + str(plotfilename)
-
-            pl.savefig(plotfilename)
-            print "summaryPlotter 2.1"
-
-
-            #pl.show()
-
-            #best fit prediction and data
-            #TODO
-
-            #corner plot
-            #fig = corner.corner(samples, labels=["$ctg$", "$ctw$", "$ctphi$", "$ctb$", "$cphit$","$ctphiQ1$","$ctphiQ3$"],
-            #                    truths=[0.0, 0.0, 0.0,0.0, 0.0, 0.0,0.0])
-
-            #fig = corner.corner(samples, labels=["$ctg$", "$ctw$", "$ctphi$", "$ctb$", "$cphit$", "$ctphiQ1$", "$ctphiQ3$"],
-            #                    quantiles=[0.05, 0.95],
-            #                       range=[1.0,1.0,1.0,1.0,1.0,1.0,1.0], truths=[0.0, 0.0, 0.0,0.0, 0.0, 0.0,0.0],
-            #                       show_titles=True, title_kwargs={"fontsize": 18})
-
-            #read in slabels from config
-            
+            pl.savefig(config.params["config"]["run_name"] + "_bestfit" + "_predictions.png")
+            #third  make "corner" plots
             labels = []
             ranges  = []
             for c in config.params["config"]["model"]["prior_limits"].keys():
                 label = "$" + c + "$"
                 labels.append(label)
                 ranges.append(1.0)
-            print "summaryPlotter 2.1"
 
-            
-            
             fig = corner.corner(samples, labels=labels,
                                 quantiles=[0.05, 0.95],
                                 range=ranges, truths=np.zeros(len(labels)),
@@ -83,10 +70,7 @@ class summaryPlotter:
 
             plotfilename = config.params["config"]["run_name"] + ".png"
 
-            print "summaryPlotter 3"
-
             fig.savefig(plotfilename)
-
 
             fig = pl.figure(figsize=(6, 3.2))
             ax = fig.add_subplot(111)
