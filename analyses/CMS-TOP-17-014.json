@@ -33,7 +33,8 @@
             },
         "max_coeff_power":1,
         "c_i_benchmark":2,
-        "cross_terms":"false"
+        "cross_terms":"false",
+        "inclusive_k_factor":1
         },
      "fit":
         {
