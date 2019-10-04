@@ -3,12 +3,12 @@
     fit
 """
 import numpy as np
-from ROOT import TFile, TH1D
+#from ROOT import TFile, TH1D
 from array import *
 import math
 
 def convert(yodafile, histname):
-    print "tools/yoda2array: converting yodafile to numpy array"
+    #print "tools/yoda2array: converting yodafile to numpy array"
     ignore_strings = ["# ID", "# xlow", "Total   ", "Underflow", "Overflow"]
     read = "false"
     central_values = []
@@ -20,15 +20,16 @@ def convert(yodafile, histname):
                 read = "true" 
             if (read == "true"):
                 if ((len(line.split("\t")) == 7) & (line.split("\t")[0] not in ignore_strings) ):
-                    print "LINE " + str(line)
+                    #print "LINE " + str(line)
                     bin_width = float(line.split("\t")[1]) - float(line.split("\t")[0])
                     central_values.append(float(line.split("\t")[2]) / bin_width )
             if ("END" in line):
                 read = "false"
     return  np.asarray(central_values)
 
+"""
 def convert2root(yodafile, histname):
-    print "tools/yoda2array: converting yodafile to root file"
+    #print "tools/yoda2array: converting yodafile to root file"
     ignore_strings = ["# ID", "# xlow", "Total   ", "Underflow", "Overflow"]
     read = "false"
     central_values = []
@@ -67,3 +68,4 @@ def convert2root(yodafile, histname):
             histo.SetBinError(bin+1, uncertainties[bin])
             #print "error bar is " + str(uncertainties[bin])
     return  histo
+"""
