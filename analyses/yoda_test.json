@@ -21,27 +21,36 @@
         },
     "model":
         {
+        "histname": "/CMS_1D_DIFF/d25-x01-y01",
         "predictions":
             {
-             "SM": [2.0866, 2.6379, 3.0165, 3.2319, 3.5100, 3.7882, 4.1034, 4.3360, 4.5570, 4.5780],
-             "ctg-": [0.9784, 1.2535, 1.4452, 1.6530, 1.9210, 2.2517, 2.5838, 2.9345, 3.221, 3.3929],
-             "ctg+": [3.9192, 5.0922, 5.7026, 6.1018, 6.5747, 7.0936, 7.5085, 7.7923, 8.0505, 8.1539]
+             "SM": "yoda/SM.yoda",
+             "ctg-": "yoda/run_01.yoda",
+             "ctg+": "yoda/run_02.yoda",
+             "ctW-": "yoda/run_03.yoda",
+             "ctW+": "yoda/run_04.yoda",
+             "ctphi-": "yoda/run_05.yoda",
+             "ctphi+": "yoda/run_06.yoda",
+             "cbW-": "yoda/run_07.yoda",
+             "cbW+": "yoda/run_08.yoda"
             },
-        "inclusive_k_factor": 1.0,
+        "inclusive_k_factor": 1.8,
         "prior_limits":
             {
-            "ctg": [-3.0,3.0]
+            "ctg": [-3.0,3.0],
+            "ctW": [-3.0,3.0],
+            "ctphi": [-3.0,3.0],
+            "cbW": [-3.0,3.0]
             },
         "max_coeff_power":1,
-        "c_i_benchmark":2,
+        "c_i_benchmark":1,
         "cross_terms":"false"
         },
      "fit":
         {
-            "n_walkers": 200,
+            "n_walkers": 100,
             "n_burnin": 500,
-            "n_total":  5000
+            "n_total":  2000
         }
     }
 }
-

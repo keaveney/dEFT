@@ -64,7 +64,7 @@ class summaryPlotter:
                 ranges.append(1.0)
 
             fig = corner.corner(samples, labels=labels,
-                                quantiles=[0.05, 0.95],
+                                quantiles=[0.32, 0.68, 0.05, 0.95],
                                 range=ranges, truths=np.zeros(len(labels)),
                                 show_titles=True, title_kwargs={"fontsize": 18})
 
@@ -87,6 +87,7 @@ class summaryPlotter:
             cax.set_frame_on(False)
             #pl.colorbar(orientation='vertical')
             #pl.show()
+            
 
 
 
