@@ -41,8 +41,11 @@ ndim = int((len(config.predictions) - 1.0)/2.0)
 nBurnIn = config.n_burnin
 nTotal = config.n_total
 p0 = np.random.rand(ndim * nWalkers).reshape(nWalkers, ndim)
+#p0 = [np.zeros(ndim) + 1e-4*np.random.randn(ndim) for i in range(nWalkers)]
+#p0 = np.zeros(ndim * nWalkers).reshape(nWalkers, ndim)
 sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob, args=[config.params["config"]["data"]["central_values"], config.icov])
 pos, prob, state = sampler.run_mcmc(p0, nBurnIn)
+print "pos " + str(pos)
 sampler.reset()
 sampler.run_mcmc(pos,nTotal)
 samples = sampler.chain.reshape((-1, ndim))
