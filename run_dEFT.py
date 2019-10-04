@@ -7,6 +7,7 @@ import json
 import sys
 import matplotlib.pyplot as pl
 from tools.configReader import configReader
+
 start = time.time()
 
 ######################################################
@@ -17,6 +18,8 @@ config = configReader()
 config.init(filename)
 pb = predBuilder()
 pb.init(config.predictions,config.coefficients,config.params["config"]["model"]["max_coeff_power"],config.params["config"]["model"]["c_i_benchmark"],config.cross_terms,config.params["config"]["model"]["inclusive_k_factor"])
+
+
 ######################################################
 ###############   DEFINE LIKELIHOOD   ################
 ######################################################
@@ -33,6 +36,8 @@ def lnprob(c, data, icov):
     #ll =  (-np.dot(diff,np.dot(icov,diff))/2.0) + (lnprior(c))
     ll =  (-np.dot(diff,np.dot(icov,diff)))
     return ll
+
+
 ######################################################
 ###############   RUN THE FIT   ######################
 ######################################################
@@ -46,8 +51,16 @@ pos, prob, state = sampler.run_mcmc(p0, nBurnIn)
 sampler.reset()
 sampler.run_mcmc(pos,nTotal)
 samples = sampler.chain.reshape((-1, ndim))
+if isinstance(samples, np.ndarray):
+    print "is numpy array"
+
+print "summaryPlotter 6 = "
+print str(samples)
+
 mcmc_params = np.mean(sampler.flatchain,axis=0)
 mcmc_params_cov = np.cov(np.transpose(sampler.flatchain))
+
+
 ######################################################
 ###############   PLOT RESULTS   ####################
 ######################################################

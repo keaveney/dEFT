@@ -62,6 +62,7 @@ class summaryPlotter:
                 label = "$" + c + "$"
                 labels.append(label)
                 ranges.append(1.0)
+            print "summaryPlotter 5" + str(len(samples))
 
             fig = corner.corner(samples, labels=labels,
                                 quantiles=[0.05, 0.95],

@@ -38,9 +38,9 @@
         },
      "fit":
         {
-            "n_walkers": 200,
-            "n_burnin": 500,
-            "n_total":  5000
+            "n_walkers": 2,
+            "n_burnin": 5,
+            "n_total":  5
         }
     }
 }
