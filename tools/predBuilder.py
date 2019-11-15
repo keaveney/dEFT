@@ -12,7 +12,7 @@ class predBuilder:
             unscaled_SM = np.copy(self.predictions['SM'])
             self.predictions['SM'] = np.asarray([x * self.inclusive_k_factor for x in self.predictions['SM']])
             k_term = np.subtract(self.predictions['SM'],unscaled_SM)
-            print "k term  = " + str(self.predictions['SM'])
+            #print "k term  = " + str(self.predictions['SM'])
             
             for c in coefficients:
                 ci_m_name = c + "-"
@@ -54,14 +54,16 @@ class predBuilder:
             self.pred_basis = pred_basis
         def make_pred(self,c):
             pred = np.zeros(len(self.predictions['SM']))
-            for ci in range(0, len(self.coefficients)):
-                basis_ci_sm_name = self.coefficients[ci] + "_sm"
-                basis_ci_ci_name = self.coefficients[ci] + "_" + self.coefficients[ci]
+            coefficients = list(self.coefficients)
+            for ci in range(0, len(coefficients)):
+                basis_ci_sm_name = str(coefficients[ci]) + "_sm"
+                basis_ci_ci_name = str(coefficients[ci]) + "_" + str(coefficients[ci])
                 ci_sm_contrib = (c[ci]*self.pred_basis[basis_ci_sm_name])
                 ci_ci_contrib = ((c[ci]**2)*self.pred_basis[basis_ci_ci_name])
                 pred += ci_sm_contrib
                 if (self.max_coeff_power > 1):
                     pred += ci_ci_contrib
+        
                 #add option for cross terms (if self.max_coeff_power == ) ...etc.
                 #print "ci  in make_pred " + str(self.pred_basis[basis_ci_sm_name])
             pred = pred + self.predictions['SM']

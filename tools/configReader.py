@@ -8,7 +8,7 @@ class configReader:
         self.filename = filename
         coefficients = []
         predictions = {}
-        print "initialising with file " + self.filename
+        #print "initialising with file " + self.filename
         #Read JSON data into the datastore variable
         with open(filename, 'r') as f:
             config = json.load(f)
@@ -33,6 +33,11 @@ class configReader:
         for x_val in range(0, len(self.params["config"]["data"]["bins"])-1):
             x_vals[x_val] = (self.params["config"]["data"]["bins"][x_val] + self.params["config"]["data"]["bins"][x_val+1])/2.0
         self.x_vals = x_vals
+
+        try:
+            basestring
+        except NameError:
+            basestring = str
 
         for predname in self.params["config"]["model"]["predictions"].keys():
             if (isinstance(self.params["config"]["model"]["predictions"][predname], basestring)):

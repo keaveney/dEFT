@@ -6,6 +6,7 @@ import time
 import json
 import sys
 import matplotlib.pyplot as pl
+import pandas as pd
 from tools.configReader import configReader
 
 start = time.time()
@@ -50,7 +51,7 @@ p0 = np.random.rand(ndim * nWalkers).reshape(nWalkers, ndim)
 #p0 = np.zeros(ndim * nWalkers).reshape(nWalkers, ndim)
 sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob, args=[config.params["config"]["data"]["central_values"], config.icov])
 pos, prob, state = sampler.run_mcmc(p0, nBurnIn)
-print "pos " + str(pos)
+#print "pos " + str(pos)
 sampler.reset()
 sampler.run_mcmc(pos,nTotal)
 samples = sampler.chain.reshape((-1, ndim))
@@ -67,11 +68,11 @@ mcmc_params_cov = np.cov(np.transpose(sampler.flatchain))
 ######################################################
 ###############   PLOT RESULTS   ####################
 ######################################################
-print "best fit vals = " + str(mcmc_params)
+#print "best fit vals = " + str(mcmc_params)
 #print "uncertainties = " + str(np.sqrt(np.diag(mcmc_params_cov)))
 #print "Summarising: pb =  "  +  str(ndim) + " samples=  " + str(samples)
 
 sp = summaryPlotter()
-sp.summarise(config, pb, samples, mcmc_params)
+sp.summarise(config, pb, sampler, samples, mcmc_params)
 end = time.time()
-print "Total elapsed wall time  = " +  str(end - start)
+#print "Total elapsed wall time  = " +  str(end - start)
