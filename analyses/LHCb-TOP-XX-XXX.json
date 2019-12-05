@@ -1,0 +1,43 @@
+{"config":
+    {
+    "run_name": "LHCb-TOP-XX-XXX",
+    "data":
+        {
+        "observable":"$\\delta\\phi(ll)$",
+        "bins": [0.0, 0.628, 1.25, 1.88, 2.512, 3.14],
+        "central_values": [1.060000e-02, 1.780000e-02, 1.760000e-02, 1.920000e-02, 2.020000e-02],
+        "covariance_matrix": [
+                [ 7.744e-7, 0.0, 0.0, 0.0, 0.0],
+                [ 0.0, 7.744e-7, 0.0, 0.0, 0.0],
+                [ 0.0, 0.0, 7.744e-7, 0.0, 0.0],
+                [ 0.0, 0.0, 0.0, 7.744e-7, 0.0],
+                [ 0.0, 0.0, 0.0, 0.0, 7.744e-7]
+        ]
+        },
+    "model":
+        {
+        "histname": "/LHCb_TOP/d25-x01-y01",
+        "predictions":
+            {
+                "SM": "yoda/SM.yoda",
+                "ctg-": "yoda/sm_ctg_m2.yoda",
+                "ctg+": "yoda/sm_ctg_p2.yoda"
+            },
+        "inclusive_k_factor": 1.001,
+        "prior_limits":
+            {
+            "ctg": [-3.0,3.0]
+            },
+        "max_coeff_power":1,
+        "c_i_benchmark":2,
+        "cross_terms":"false"
+        },
+     "fit":
+        {
+            "n_walkers": 200,
+            "n_burnin": 500,
+            "n_total":  5000
+        }
+    }
+}
+
