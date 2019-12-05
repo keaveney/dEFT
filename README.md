@@ -116,7 +116,7 @@ rivet hepmc/sm.hepmc -a LHCb_TOP
 
 to run the plugin and produce yoda files.
 
-This resultant plots can be viewed by created a single html file which
+This resultant plots can be viewed by created a single html file under rivet-plots/ which
 can be viewed locally with your web browser.
 
 rivet-mkhtml Rivet.yoda:'Title=SM':'LineColor=blue' 
