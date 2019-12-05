@@ -17,6 +17,8 @@ filename = sys.argv[1]
 config = configReader()
 config.init(filename)
 pb = predBuilder()
+
+#could pb.init just be called with 'config' as argument?
 pb.init(config.predictions,config.coefficients,config.params["config"]["model"]["max_coeff_power"],config.params["config"]["model"]["c_i_benchmark"],config.cross_terms,config.params["config"]["model"]["inclusive_k_factor"])
 ######################################################
 ###############   DEFINE LIKELIHOOD   ################

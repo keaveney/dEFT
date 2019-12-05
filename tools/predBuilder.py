@@ -12,7 +12,6 @@ class predBuilder:
             unscaled_SM = np.copy(self.predictions['SM'])
             self.predictions['SM'] = np.asarray([x * self.inclusive_k_factor for x in self.predictions['SM']])
             k_term = np.subtract(self.predictions['SM'],unscaled_SM)
-            #print "k term  = " + str(self.predictions['SM'])
             
             for c in coefficients:
                 ci_m_name = c + "-"
