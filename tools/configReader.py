@@ -39,12 +39,16 @@ class configReader:
         except NameError:
             basestring = str
 
-        for predname in self.params["config"]["model"]["predictions"].keys():
-            if (isinstance(self.params["config"]["model"]["predictions"][predname], basestring)):
-                predictions[predname] = yoda2array.convert(self.params["config"]["model"]["predictions"][predname], self.params["config"]["model"]["histname"])
-            else:
-                predictions[predname] = np.asarray(self.params["config"]["model"]["predictions"][predname])
-        self.predictions = predictions
+        if(self.params["config"]["model"]["input"] == "numpy"):
+            print("input predictions expected as numpy arrays")
+        elif(self.params["config"]["model"]["input"] == "yoda"):
+            print("input predictions expected as yoda files")
+            for predname in self.params["config"]["model"]["predictions"].keys():
+                if (isinstance(self.params["config"]["model"]["predictions"][predname], basestring)):
+                    predictions[predname] = yoda2array.convert(self.params["config"]["model"]["predictions"][predname], self.params["config"]["model"]["histname"])
+                else:
+                    predictions[predname] = np.asarray(self.params["config"]["model"]["predictions"][predname])
+            self.predictions = predictions
 
 
 

@@ -223,8 +223,8 @@ namespace Rivet {
 
         
      //event selection
-	  if (_leptons.size() != 2) return;
-	  if (_bjets.size() < 1) return;
+	  //if (_leptons.size() != 2) return;
+	  //if (_bjets.size() < 1) return;
         
       // Every building blocks are ready. Continue to pseudo-W and pseudo-top combination
 

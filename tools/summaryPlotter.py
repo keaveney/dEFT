@@ -24,9 +24,9 @@ class summaryPlotter:
                 label_stringp = coefficients[c] + "/$\Lambda^{2}$" + " = 1.0 " + "[TeV$^{-2}$]"
                 label_stringn = coefficients[c] + "/$\Lambda^{2}$" + " = -1.0 " + "[TeV$^{-2}$]"
                 pl.figure()
-                pl.errorbar(config.x_vals, pb.make_pred(valsp), xerr=0.0, yerr=0.0, label=label_stringp)
-                pl.errorbar(config.x_vals, pb.make_pred(valsn), xerr=0.0, yerr=0.0, label=label_stringn)
-                pl.errorbar(config.x_vals, config.predictions['SM'], xerr=0.0, yerr=0.0, label='SM')
+                pl.errorbar(config.x_vals, pb.makePred(valsp), xerr=0.0, yerr=0.0, label=label_stringp)
+                pl.errorbar(config.x_vals, pb.makePred(valsn), xerr=0.0, yerr=0.0, label=label_stringn)
+                pl.errorbar(config.x_vals, config.params["config"]["model"]["predictions"][0], xerr=0.0, yerr=0.0, label='SM')
                 pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=0.05, label=data_label)
                 pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, min_val, max_val])
                 ax = pl.gca()
@@ -47,7 +47,7 @@ class summaryPlotter:
                 else:
                     label_string_bestfit = label_string_bestfit + coefficients[c] + " = " + '%.3f' % mcmc_params[c] + ", "
 
-            pl.errorbar(config.x_vals, pb.make_pred(mcmc_params), fmt="m", xerr=0.0, yerr=0.0, label=label_string_bestfit)
+            pl.errorbar(config.x_vals, pb.makePred(mcmc_params), fmt="m", xerr=0.0, yerr=0.0, label=label_string_bestfit)
             pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=0.05, label=data_label)
             pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, min_val, max_val])
             ax = pl.gca()

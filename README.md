@@ -40,6 +40,9 @@ pip install corner
     - used to generate the array of 1- and 2-d scatter plots that visualise the confidence/credible intervals
       More information on this package can be found at https://corner.readthedocs.io/en/latest/install.html.
 
+pip install tqdm
+    - used to display progress bars while sampling is running
+
 Building a dEFT analysis:
 
 A dEFT analysis has three basic inputs:
