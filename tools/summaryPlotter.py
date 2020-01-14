@@ -63,7 +63,9 @@ class summaryPlotter:
             for c in config.params["config"]["model"]["prior_limits"].keys():
                 label = "$" + c + "$"
                 labels.append(label)
-                ranges.append(1.0)
+                #ranges.append(1.0)
+                ranges.append(config.params["config"]["model"]["prior_limits"][c])
+
             
             #print "samples " + str(samples)
             #df = pd.DataFrame.from_records(sampler.get_blobs(flat=True, discard=100, thin=30))

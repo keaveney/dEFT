@@ -16,7 +16,8 @@ class configReader:
         self.run_name = self.params["config"]["run_name"]
         self.observable = self.params["config"]["data"]["observable"]
         self.prior_limits = self.params["config"]["model"]["prior_limits"]
-        self.coefficients = self.params["config"]["model"]["prior_limits"].keys()
+        self.coefficients = list(self.params["config"]["model"]["prior_limits"].keys())
+        print(" Number of operators to be studied =  " + str(len(self.coefficients)))
         self.n_walkers = self.params["config"]["fit"]["n_walkers"]
         self.n_burnin = self.params["config"]["fit"]["n_burnin"]
         self.n_total = self.params["config"]["fit"]["n_total"]
