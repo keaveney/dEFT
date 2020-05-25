@@ -1,5 +1,6 @@
 from tools.predBuilder import predBuilder
 from tools.summaryPlotter import summaryPlotter
+from scipy.optimize import minimize
 import numpy as np
 import emcee
 import time
@@ -8,11 +9,12 @@ import sys
 import matplotlib.pyplot as pl
 import pandas as pd
 from tools.configReader import configReader
-
 from multiprocessing import Pool
+import matplotlib.pyplot as pl
+from mpl_toolkits.mplot3d import Axes3D
+
 
 start = time.time()
-
 ######################################################
 ###############   READ CONFIG   ######################
 ######################################################
@@ -28,7 +30,6 @@ pb = predBuilder()
 
 if(config.params["config"]["model"]["input"] == "numpy"):
     pb.init(len(config.params["config"]["model"]["prior_limits"]), config.params["config"]["model"]["samples"], np.asarray(config.params["config"]["model"]["predictions"]))
-
 
 #print("testing pb init = " + str(config.params["config"]["model"]["samples"]) + " --- " + str(np.asarray(config.params["config"]["model"]["predictions"])))
 
@@ -58,60 +59,160 @@ def lnprob(c, data, icov):
 ##############################################################
 ###############  VALIDATION OF MORPHING MODEL  ###############
 ##############################################################
-"""val = np.array([-2.19, 11.4, -9.99, -0.1, 6.5, -13.34])
-print("val prediction for [-2.19, 11.4, -9.99, -0.1, 6.5, -13.34] = " + str(pb.makePred(val)))
-print("MadGraph prediction for [-2.19, 11.4, -9.99, -0.1, 6.5, -13.34] = 1.027")
+if (len(sys.argv) > 2):
+    filenameTest = sys.argv[2]
+    configTest = configReader()
+    configTest.init(filenameTest)
+    
+    testSamples = configTest.params["config"]["model"]["samples"]
+    testPreds = np.asarray(configTest.params["config"]["model"]["predictions"])
 
+    print("##############################################################")
+    print("###############  VALIDATION OF MORPHING MODEL  ###############")
+    print("##############################################################")
+    
+    ndDistances = []
+    morphPreds = ([])
+    diffs = []
+    testPredStrs =  ([])
+    iDistances = np.zeros((len(testPreds),len(config.params["config"]["model"]["prior_limits"]) ))
+    
+    if (len(config.params["config"]["model"]["prior_limits"]) == 2): # a special validation of diffs vs (ci, cj) can be visualised if nOPs=2
+        ciP = ([])
+        cjP = ([])
+        absDiff = ([])
+    
+    for p in range(0, len(testPreds)):
+        print("coefficient values at test point =        " + str(testSamples[p]))
+        print("prediction at test point =                " + str(testPreds[p]))
+        testPred = testPreds[p]
+        ciPoint = np.delete(testSamples[p], 0)
+        morphPred = pb.makePred(ciPoint)
+        morphPreds = np.append(morphPreds,morphPred)
+        print("morphing model prediction at test point = " +str(morphPred))
+        testPredStr = str(ciPoint)
+        testPredStrs = np.append(testPredStrs, testPredStr)
+        
+        if (len(ciPoint) == 2):
+            ciP = np.append(ciP,ciPoint[0])
+            cjP = np.append(cjP,ciPoint[1])
+            absDiff = np.append(absDiff, (morphPred - testPred))
 
-val = np.array([0.5, 5.9, 11.0, 18.0, 5.3, -0.6])
-print("val prediction for [0.5, 5.9, 11.0, 18.0, 5.3, -0.6]= " + str(pb.makePred(val)))
-print("MadGraph prediction for [0.5, 5.9, 11.0, 18.0, 5.3, -0.6] = 1.089")
+        smPoint = np.zeros(len(config.params["config"]["model"]["prior_limits"]))
+        # find Euclidean distance between test pred and SM in ci space
+        ndDistance = np.linalg.norm(ciPoint-smPoint)
+        print("ND distance (SM -> test point)          = " +str(ndDistance))
+        print(" ")
+        ndDistances.append(ndDistance)
+        diff = 0.0
+        
+        for c in range(0, len(ciPoint)):
+            iDistances[p][c] = ciPoint[c]
+        
+        # find sum of squared differences between morph pred and test pred
+        for bin in range(0, len(morphPred)):
+            diff = diff + ((morphPred[bin] - testPred[bin])**2)
+            
+        diff = np.abs(morphPred)
+        diffs.append(diff)
+        
+        pl.figure()
+        pl.errorbar(config.x_vals, testPred, xerr=0.0, yerr=0.0, label="benchmark prediction", fmt="o")
+        pl.errorbar(config.x_vals, morphPred, xerr=0.0, yerr=0.0, label="morphing model", fmt="r+")
+        #ax = pl.gca()
+        #labely = ax.set_xlabel(xlabel, fontsize = 18)
+        #ax.xaxis.set_label_coords(0.85, -0.065)
+        #labely = ax.set_ylabel(ylabel, fontsize = 18)
+        #ax.yaxis.set_label_coords(-0.037, 0.83)
+        pl.legend(loc=2)
+        plotfilename = str(config.params["config"]["run_name"]) + "_results/" + str(config.params["config"]["run_name"]) + "_MorphingValidation_" + str(p)  +".png"
+        pl.savefig(plotfilename)
+        pl.close()
+        
+    ax = pl.axes(projection='3d')
+    ax.scatter3D(ciP, cjP, absDiff, cmap='Greens')
+    pl.savefig("diff.png")
 
-val = np.array([-9.4, -3.0, 4.0, 61.0, -23.0, 111.0])
-print("val prediction for [-9.4, -3.0, 4.0, 61.0, -23.0, 111.0] = " + str(pb.makePred(val)))
-print("MadGraph prediction for [-9.4, -3.0, 4.0, 61.0, -23.0, 111.0] = 12.8")
+    pl.figure()
+    
+    itr = np.arange(len(morphPreds))
+    
+    #fig = pl.errorbar(x, bestFits, yerr=[marginUncsDown, marginUncsUp], fmt='o')
+    fig = pl.errorbar(itr, morphPreds, fmt='o', label="morph model")
+    fig = pl.errorbar(itr, testPreds, fmt='o', label="test predictions")
+    pl.gcf().subplots_adjust(bottom=0.15)
+    pl.legend(loc=2)
+    pl.xticks(range(len(testPredStrs)), testPredStrs, rotation='45')
+    pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_MorphingValidation_summary.png")
+    pl.close()
 
-val = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-print("val prediction for [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] = " + str(pb.makePred(val)))
-print("MadGraph prediction for [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] = 0.5612")
-"""
+    for c in range(0,len(ciPoint)):
+        ciVals = iDistances[:, c]
+
+        pl.figure()
+        pl.scatter(ciVals, diffs)
+        pl.legend(loc=2)
+        plotfilename = str(config.params["config"]["run_name"]) + "_results/" + str(config.params["config"]["run_name"]) + "_SquaredDiff_vs_" + str(c) + "_iDistance.png"
+        pl.savefig(plotfilename)
+        pl.close()
+
+    pl.figure()
+    pl.scatter(ndDistances,diffs)
+    pl.legend(loc=2)
+    plotfilename = str(config.params["config"]["run_name"]) + "_results/" + str(config.params["config"]["run_name"]) + "_SquaredDiff_vs_nDDistance.png"
+    pl.savefig(plotfilename)
+    pl.close()
+
+    pl.figure()
+    #pl.errorbar(config.x_vals, pb.makePred([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]),xerr=0.0, yerr=0.0, label="morphing model")
+    pl.errorbar(config.x_vals, testPreds[0], xerr=0.0, yerr=0.0, label="benchmark prediction", fmt="o")
+    pl.legend(loc=2)
+    plotfilename = str(config.params["config"]["run_name"]) + "_results/" + str(config.params["config"]["run_name"]) + "_MorphingValidation_SM.png"
+    pl.savefig(plotfilename)
+    pl.close()
 
 ######################################################
 ###############   RUN THE FIT   ######################
 ######################################################
-nWalkers = config.n_walkers
-#ndim = int((len(config.predictions) - 1.0)/2.0)
-ndim = int(len(config.params["config"]["model"]["prior_limits"]))
-nBurnIn = config.n_burnin
-nTotal = config.n_total
-p0 = np.random.rand(ndim * nWalkers).reshape(nWalkers, ndim)
-#p0 = [np.zeros(ndim) + 1e-4*np.random.randn(ndim) for i in range(nWalkers)]
-#p0 = np.zeros(ndim * nWalkers).reshape(nWalkers, ndim)
+if (len(sys.argv) <= 2):
 
-print("icov = " + str(config.icov))
+    nWalkers = config.n_walkers
+    #ndim = int((len(config.predictions) - 1.0)/2.0)
+    ndim = int(len(config.params["config"]["model"]["prior_limits"]))
+    nBurnIn = config.n_burnin
+    nTotal = config.n_total
+    #p0 = np.random.rand(ndim * nWalkers).reshape(nWalkers, ndim)
+    p0 = [np.zeros(ndim) + 1e-4*np.random.randn(ndim) for i in range(nWalkers)]
+    #p0 = np.zeros(ndim * nWalkers).reshape(nWalkers, ndim)
 
-with Pool() as pool:
-    sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob,  pool=pool, args=[config.params["config"]["data"]["central_values"], config.icov])
-    pos, prob, state = sampler.run_mcmc(p0, nBurnIn,  progress=True)
-    #print "pos " + str(pos)
-    sampler.reset()
-    sampler.run_mcmc(pos,nTotal,  progress=True)
+    ###############   FIND ML RESULT ######################
+    nll = lambda *args: lnprob(*args)
+    initial = p0
+    #soln = minimize(nll, initial, args=(config.data, config.icov), method='SLSQP', options={'maxiter': 100, 'ftol': 1e-01, 'iprint': 1, 'disp': False, 'eps': 1.4901161193847656e-08})
+    #print("ML soln = " + str(soln.x))
 
-samples = sampler.chain.reshape((-1, ndim))
-if isinstance(samples, np.ndarray):
-    print("is numpy array")
+    with Pool(processes=6) as pool:
+        sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob,  pool=pool, args=[config.params["config"]["data"]["central_values"], config.icov])
+        pos, prob, state = sampler.run_mcmc(p0, nBurnIn,  progress=True)
+        #print "pos " + str(pos)
+        sampler.reset()
+        sampler.run_mcmc(pos,nTotal,  progress=True)
 
-mcmc_params = np.mean(sampler.flatchain,axis=0)
-mcmc_params_cov = np.cov(np.transpose(sampler.flatchain))
+    samples = sampler.chain.reshape((-1, ndim))
+    if isinstance(samples, np.ndarray):
+        print("is numpy array")
 
-######################################################
-###############   PLOT RESULTS   ####################
-######################################################
-#print "best fit vals = " + str(mcmc_params)
-#print "uncertainties = " + str(np.sqrt(np.diag(mcmc_params_cov)))
-#print "Summarising: pb =  "  +  str(ndim) + " samples=  " + str(samples)
+    mcmc_params = np.mean(sampler.flatchain,axis=0)
+    mcmc_params_cov = np.cov(np.transpose(sampler.flatchain))
 
-sp = summaryPlotter()
-sp.summarise(config, pb, sampler, samples, mcmc_params)
-end = time.time()
-#print "Total elapsed wall time  = " +  str(end - start)
+    ######################################################
+    ###############   PLOT RESULTS   ####################
+    ######################################################
+    #print "best fit vals = " + str(mcmc_params)
+    #print "uncertainties = " + str(np.sqrt(np.diag(mcmc_params_cov)))
+    #print "Summarising: pb =  "  +  str(ndim) + " samples=  " + str(samples)
+
+    sp = summaryPlotter()
+    sp.summarise(config, pb, sampler, samples, mcmc_params)
+    end = time.time()
+    #print "Total elapsed wall time  = " +  str(end - start)
