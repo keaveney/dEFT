@@ -33,7 +33,7 @@
         {
             "n_walkers": 400,
             "n_burnin": 500,
-            "n_total": 5000
+            "n_total": 500
         }
     }
 }
