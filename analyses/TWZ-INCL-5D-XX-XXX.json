@@ -19,11 +19,11 @@
             "inclusive_k_factor": 1.00,
             "prior_limits":
             {
-                "cPhiQM": [-10.0, 10.0],
-                "cPhiQ3": [-10.0, 10.0],
-                "cPhit": [-10.0, 10.0],
-                "cPhitB": [-10.0, 10.0],
-                "ctW": [-10.0, 10.0]
+                "cPhiQM": [-20.0, 20.0],
+                "cPhiQ3": [-20.0, 20.0],
+                "cPhit": [-20.0, 20.0],
+                "cPhitB": [-20.0, 20.0],
+                "ctW": [-20.0, 20.0]
             },
             "max_coeff_power":1,
             "c_i_benchmark":2,
@@ -31,9 +31,9 @@
         },
         "fit":
         {
-            "n_walkers": 400,
+            "n_walkers": 200,
             "n_burnin": 500,
-            "n_total": 500
+            "n_total": 50000
         }
     }
 }
