@@ -4,12 +4,21 @@ import matplotlib.image as image
 import numpy as np
 import corner
 import os
-
 import json
 
+from matplotlib import rc
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+## for Palatino and other serif fonts use:
+#rc('font',**{'family':'serif','serif':['Palatino']})
+rc('text', usetex=True)
+
+
 class summaryPlotter:
-    def summarise(self, config, pb, sampler, samples, mcmc_params):
+    def summarise(self, config, pb, sampler, samples):
         
+            mcmc_params = np.mean(sampler.flatchain,axis=0)
+            mcmc_params_cov = np.cov(np.transpose(sampler.flatchain))
+            
             cmd = "mkdir -p " + str(config.params["config"]["run_name"]) + "_results"
             os.system(cmd)
         
@@ -86,9 +95,13 @@ class summaryPlotter:
             
             #print "samples " + str(samples)
             #df = pd.DataFrame.from_records(sampler.get_blobs(flat=True, discard=100, thin=30))
-            
-            fig = corner.corner(samples, labels=labels,
-                                quantiles=[0.32, 0.68, 0.05, 0.95],
+    
+    #        fig = corner.corner(x, quantiles=(0.16, 0.84), levels=(1-np.exp(-0.5),))
+
+            texLabels = ["$c_{\phi t}$","$c_{\phi t b}$","$c_{t W}$",]
+            fig = corner.corner(samples, labels=texLabels,
+                                quantiles=[0.16, 0.84],
+                                levels=(1-np.exp(-0.5),),
                                 range=ranges, truths=np.zeros(len(labels)),
                                 show_titles=True, title_kwargs={"fontsize": 18})
 
@@ -185,6 +198,21 @@ class summaryPlotter:
             axes[-1].set_xlabel("step number");
 
             pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_walkerPaths.png")
+            pl.close()
+            
+
+
+            ######################################################
+            ###############   PLOT RESULTS   ####################
+            ######################################################
+            print("best fit vals = " + str(mcmc_params))
+            print("uncertainties = " + str(np.sqrt(np.diag(mcmc_params_cov))))
+            print("cov mat = " + str(mcmc_params_cov))
+
+            pl.figure()
+
+            pl.matshow(mcmc_params_cov, cmap=pl.cm.Blues)
+            pl.savefig("mcmc_params_cov.png")
             pl.close()
 
 

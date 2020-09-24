@@ -1,6 +1,6 @@
 preds = []
 
-with open("twz_5D.out", "r") as a_file:
+with open("run_twz_8out", "r") as a_file:
     for line in a_file:
         if("Cross-section" in line):
             token = line.split(" ")

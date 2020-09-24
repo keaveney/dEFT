@@ -129,9 +129,9 @@ if (len(sys.argv) > 2):
         pl.savefig(plotfilename)
         pl.close()
         
-    ax = pl.axes(projection='3d')
-    ax.scatter3D(ciP, cjP, absDiff, cmap='Greens')
-    pl.savefig("diff.png")
+    #ax = pl.axes(projection='3d')
+    #ax.scatter3D(ciP, cjP, absDiff, cmap='Greens')
+    #pl.savefig("diff.png")
 
     pl.figure()
     
@@ -140,7 +140,10 @@ if (len(sys.argv) > 2):
     #fig = pl.errorbar(x, bestFits, yerr=[marginUncsDown, marginUncsUp], fmt='o')
     fig = pl.errorbar(itr, morphPreds, fmt='o', label="morph model")
     fig = pl.errorbar(itr, testPreds, fmt='o', label="test predictions")
-    pl.gcf().subplots_adjust(bottom=0.15)
+    pl.gcf().subplots_adjust(bottom=0.18)
+    axes = pl.gca()
+    ymax = np.amax(morphPreds)*1.3
+    axes.set_ylim([0.0,ymax])
     pl.legend(loc=2)
     pl.xticks(range(len(testPredStrs)), testPredStrs, rotation='45')
     pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_MorphingValidation_summary.png")
@@ -183,6 +186,7 @@ if (len(sys.argv) <= 2):
     nTotal = config.n_total
     #p0 = np.random.rand(ndim * nWalkers).reshape(nWalkers, ndim)
     p0 = [np.zeros(ndim) + 1e-4*np.random.randn(ndim) for i in range(nWalkers)]
+    #print("p0 = " + str(p0))
     #p0 = np.zeros(ndim * nWalkers).reshape(nWalkers, ndim)
 
     ###############   FIND ML RESULT ######################
@@ -202,17 +206,8 @@ if (len(sys.argv) <= 2):
     if isinstance(samples, np.ndarray):
         print("is numpy array")
 
-    mcmc_params = np.mean(sampler.flatchain,axis=0)
-    mcmc_params_cov = np.cov(np.transpose(sampler.flatchain))
-
-    ######################################################
-    ###############   PLOT RESULTS   ####################
-    ######################################################
-    #print "best fit vals = " + str(mcmc_params)
-    #print "uncertainties = " + str(np.sqrt(np.diag(mcmc_params_cov)))
-    #print "Summarising: pb =  "  +  str(ndim) + " samples=  " + str(samples)
 
     sp = summaryPlotter()
-    sp.summarise(config, pb, sampler, samples, mcmc_params)
+    sp.summarise(config, pb, sampler, samples)
     end = time.time()
     #print "Total elapsed wall time  = " +  str(end - start)

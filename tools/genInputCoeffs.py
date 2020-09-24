@@ -4,13 +4,20 @@ import numpy as np
 import random
 from predBuilder import predBuilder
 
-ops = ["4", "5", "6", "8", "10"]
+#ops = ["4", "5", "6", "8", "10"]
+
+# 10 = ctW, 16 = ctG R, 6 = cPhit, 8 = cPhitB, 4 = cPhiQM, 5 = cPhiQt
+
+#ops = ["6", "8", "10"]
+
+ops = ["4", "5", "6", "8", "10", "16"]
+
 nOps = len(ops)
 
 pb = predBuilder()
 
 def genRandomCoeffSets(nOps):
-    boostFact = 20.0
+    boostFact = 3.0
     nSamples = pb.nSamples(nOps)
     coeffSets = []
     
@@ -21,7 +28,7 @@ def genRandomCoeffSets(nOps):
         for c in range(0, nOps):
             signs = [-1.0, 1.0]
             coeffSign = random.choice(signs)
-            coeffMag = float(random.randint(10,20))
+            coeffMag = float(random.randint(0,5))
             randCoeff = coeffSign*coeffMag
             coeffSet.append(randCoeff)
 
@@ -53,6 +60,7 @@ def writeProcCard(randCoeffSet):
     print("import dim6top_LO_UFO")
     print("define p = p b b~")
     print("define tp = t t~")
+    print("define w = w+ w-")
     print("define l+ = e+ mu+")
     print("define l- = e- mu-")
     print("define vl = ve vm")
@@ -69,7 +77,7 @@ def writeProcCard(randCoeffSet):
             print("madspin=OFF")
             print("shower=OFF")
             print("reweight=OFF")
-        print("set nevents=1000")
+        print("set nevents=5000")
         for c in range(1, len(randCoeffSet[sample])):
             print("set DIM6 " + str(ops[c-1]) + " " + str(randCoeffSet[sample][c]))
 
