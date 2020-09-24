@@ -9,10 +9,20 @@ doc/*
 *.DS_Store
 
 #unpusblished analyses
+analyses/
 analyses/CMS-TOP-18-006.json
+yoda/
+*.json
+*.png
 
 #root files for inputs (possibly with unlublished data)
 root_inputs/*
+
+#rivet stuff
+rivet/
+
+#other outputs
+*.txt
 
 #emacs auto-backups
 *~
