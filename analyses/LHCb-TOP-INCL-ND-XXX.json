@@ -5,9 +5,9 @@
         {
             "observable":"$\\sigma t\\bar{t}(forward region)$",
             "bins": [0.0, 1.0],
-            "central_values": [0.5837],
+            "central_values": [0.5758],
             "covariance_matrix": [
-                [ 4e-8]
+                [8.3e-6]
             ]
         },
         "model":
@@ -32,9 +32,9 @@
         },
         "fit":
         {
-            "n_walkers": 200,
+            "n_walkers": 400,
             "n_burnin": 500,
-            "n_total":  3000
+            "n_total": 5000
         }
     }
 }
