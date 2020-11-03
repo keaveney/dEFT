@@ -10,7 +10,13 @@ from predBuilder import predBuilder
 
 #ops = ["6", "8", "10"]
 
-ops = ["4", "5", "6", "8", "10", "16"]
+#ops = ["4", "5", "6", "8", "10", "16"]
+
+#ops = ["22", "23", "24"]
+
+#cHWB:3 cW,:6, cHB:10, cHt:15, ctZ:22, ctW:23, ctG:24,
+
+ops = ["3", "6", "10", "15", "22", "23", "24"]
 
 nOps = len(ops)
 
@@ -18,7 +24,8 @@ pb = predBuilder()
 
 def genRandomCoeffSets(nOps):
     boostFact = 3.0
-    nSamples = pb.nSamples(nOps)
+    nSamples = 2*pb.nSamples(nOps)
+    nSamples = 10
     coeffSets = []
     
     for s in range(0, int(nSamples)):
@@ -28,7 +35,7 @@ def genRandomCoeffSets(nOps):
         for c in range(0, nOps):
             signs = [-1.0, 1.0]
             coeffSign = random.choice(signs)
-            coeffMag = float(random.randint(0,5))
+            coeffMag = float(random.uniform(0,30))
             randCoeff = coeffSign*coeffMag
             coeffSet.append(randCoeff)
 
@@ -57,7 +64,8 @@ def genRandomPreds(nOps):
 
 def writeProcCard(randCoeffSet):
 
-    print("import dim6top_LO_UFO")
+    #print("import dim6top_LO_UFO")
+    print("import SMEFTatNLO-NLO")
     print("define p = p b b~")
     print("define tp = t t~")
     print("define w = w+ w-")
@@ -66,20 +74,24 @@ def writeProcCard(randCoeffSet):
     print("define vl = ve vm")
     print("define vl~ = ve~ vm~")
     print("define lept = l+ l- vl vl~")
-    print("generate p p > tp w z FCNC=0 DIM6=1")
+    print("generate p p > tp w z QCD=1 QED=2 NP=1 [QCD]")
+    #print("generate p p > tp w z FCNC=0 DIM6=1")
     #print("generate p p > t t~ FCNC=0 DIM6=1, (t > w+ b DIM6=0, w+ > lept lept DIM6=0),(t~ > w- b~ DIM6=0, w- > lept lept DIM6=0)")
-    print("output /tmp/twz/")
-    
-    
+    print("output /tmp/twz_train_7ops/")
+        
     for sample in range(0, len(randCoeffSet)):
-        print("launch /tmp/twz/")
-        if sample ==0:
-            print("madspin=OFF")
-            print("shower=OFF")
-            print("reweight=OFF")
-        print("set nevents=5000")
+        print("launch /tmp/twz_train_7ops/")
+        print("order=LO")
+        print("fixed_order=ON")
+        #if sample ==0:
+            #print("order=LO")
+            #print("fixed_order=ON")
+            #print("madspin=OFF")
+            #print("shower=OFF")
+            #print("reweight=OFF")
+            #print("set nevents=5000")
         for c in range(1, len(randCoeffSet[sample])):
-            print("set DIM6 " + str(ops[c-1]) + " " + str(randCoeffSet[sample][c]))
+            print("set DIM62F " + str(ops[c-1]) + " " + str(randCoeffSet[sample][c]))
 
 randCoeffSet = genRandomCoeffSets(nOps)
 randPreds = genRandomPreds(nOps)
@@ -87,7 +99,6 @@ randPreds = genRandomPreds(nOps)
 print("random coeffs = " + str(randCoeffSet) + " random preds = " + str(randPreds) )
 
 #pb.init(nOps,randCoeffSet, randPreds)
-
 
 writeProcCard(randCoeffSet)
 
