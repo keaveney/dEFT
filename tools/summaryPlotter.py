@@ -46,8 +46,8 @@ class summaryPlotter:
                 label_stringp = coefficients[c] + "/$\Lambda^{2}$" + " = 1.0 " + "[TeV$^{-2}$]"
                 label_stringn = coefficients[c] + "/$\Lambda^{2}$" + " = -1.0 " + "[TeV$^{-2}$]"
                 pl.figure()
-                pl.errorbar(config.x_vals, pb.makePred(valsp), xerr=0.0, yerr=0.0, label=label_stringp)
-                pl.errorbar(config.x_vals, pb.makePred(valsn), xerr=0.0, yerr=0.0, label=label_stringn)
+                pl.errorbar(config.x_vals, pb.makeRMPred(valsp), xerr=0.0, yerr=0.0, label=label_stringp)
+                pl.errorbar(config.x_vals, pb.makeRMPred(valsn), xerr=0.0, yerr=0.0, label=label_stringn)
                 pl.errorbar(config.x_vals, config.params["config"]["model"]["predictions"][0], xerr=0.0, yerr=0.0, label='SM')
                 pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=0.05, label=data_label)
                 pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, min_val, max_val])
@@ -71,7 +71,7 @@ class summaryPlotter:
                 else:
                     label_string_bestfit = label_string_bestfit + coefficients[c] + " = " + '%.3f' % mcmc_params[c] + ", "
 
-            pl.errorbar(config.x_vals, pb.makePred(mcmc_params), fmt="m", xerr=0.0, yerr=0.0, label=label_string_bestfit)
+            pl.errorbar(config.x_vals, pb.makeRMPred(mcmc_params), fmt="m", xerr=0.0, yerr=0.0, label=label_string_bestfit)
             pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=0.05, label=data_label)
             pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, min_val, max_val])
             ax = pl.gca()
@@ -98,11 +98,16 @@ class summaryPlotter:
     
     #        fig = corner.corner(x, quantiles=(0.16, 0.84), levels=(1-np.exp(-0.5),))
 
-            texLabels = ["$c_{\phi t}$","$c_{\phi t b}$","$c_{t W}$",]
+            texLabels = ["$c_{HWB}$","$c_{W}$","$c_{HB}$","$c_{Ht}$","$c_{tZ}$","$c_{t W}$","$c_{tG}$"]
+            
+            #fig = corner.corner(samples, plot_contours=False, labels=texLabels,
+            #                    range=ranges, truths=np.zeros(len(labels)),
+            #                    show_titles=True, title_kwargs={"fontsize": 18})
+
             fig = corner.corner(samples, labels=texLabels,
-                                quantiles=[0.16, 0.84],
-                                levels=(1-np.exp(-0.5),),
-                                range=ranges, truths=np.zeros(len(labels)),
+                                range=ranges,
+                                quantiles=[0.16, 0.5, 0.84],
+                                truths=np.zeros(len(labels)),
                                 show_titles=True, title_kwargs={"fontsize": 18})
 
             plotfilename = str(config.params["config"]["run_name"]) + "_results/" + str(config.params["config"]["run_name"]) + ".png"
@@ -160,7 +165,6 @@ class summaryPlotter:
             fitSummary["labels"] = labels
             fitSummary["x"] = x
 
-            
             with open(config.params["config"]["run_name"] + ".json", 'w') as fs:
                 json.dump(fitSummary, fs)
 
@@ -169,12 +173,12 @@ class summaryPlotter:
             uncX = np.absolute((np.diff(config.bins)))/2.0
             dataUncY = np.sqrt(np.diag(config.cov))
             pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=uncX, yerr=dataUncY, label=data_label)
-            pl.errorbar(config.x_vals, pb.makePred(bestFits), fmt="m", xerr=0.0, yerr=0.0, label=label_string_bestfit)
+            pl.errorbar(config.x_vals, pb.makeRMPred(bestFits), fmt="m", xerr=0.0, yerr=0.0, label=label_string_bestfit)
             
             inds = np.random.randint(len(samples), size=100)
             for ind in inds:
                 sample = samples[ind]
-                pl.plot(config.x_vals, pb.makePred(sample), "C1", alpha=0.1)
+                pl.plot(config.x_vals, pb.makeRMPred(sample), "C1", alpha=0.1)
                 #pl.plot(config.x_vals, np.dot(np.vander(config.x_vals, 2), sample[:2]), "C1", alpha=0.1)
                 #pl.plot(config.x_vals, sample[:2], "C1", alpha=0.1)
 
@@ -201,7 +205,6 @@ class summaryPlotter:
             pl.close()
             
 
-
             ######################################################
             ###############   PLOT RESULTS   ####################
             ######################################################
@@ -212,7 +215,7 @@ class summaryPlotter:
             pl.figure()
 
             pl.matshow(mcmc_params_cov, cmap=pl.cm.Blues)
-            pl.savefig("mcmc_params_cov.png")
+            pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "mcmc_params_cov.png")
             pl.close()
 
 
