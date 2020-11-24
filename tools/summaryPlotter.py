@@ -15,10 +15,7 @@ rc('text')
 
 class summaryPlotter:
     def summarise(self, config, pb, sampler, samples):
-        
-            mcmc_params = np.mean(sampler.flatchain,axis=0)
-            mcmc_params_cov = np.cov(np.transpose(sampler.flatchain))
-            
+                    
             cmd = "mkdir -p " + str(config.params["config"]["run_name"]) + "_results"
             os.system(cmd)
         
@@ -60,7 +57,6 @@ class summaryPlotter:
                 plotfilename = str(config.params["config"]["run_name"]) + "_results/" + str(config.params["config"]["run_name"]) + "_" + coefficients[c] + "_predictions.png"
                 pl.savefig(plotfilename)
                 pl.close()
-
             
             #second make plots of best fit prediction versus data
             pl.figure()
@@ -84,6 +80,7 @@ class summaryPlotter:
             pl.close()
 
             #third  make "corner" plots
+
             labels = []
             ranges  = []
             for c in config.params["config"]["model"]["prior_limits"].keys():
@@ -91,7 +88,6 @@ class summaryPlotter:
                 labels.append(label)
                 #ranges.append(1.0)
                 ranges.append(config.params["config"]["model"]["prior_limits"][c])
-
             
             #print "samples " + str(samples)
             #df = pd.DataFrame.from_records(sampler.get_blobs(flat=True, discard=100, thin=30))
@@ -148,12 +144,34 @@ class summaryPlotter:
                 x.append(i)
                 bestFits.append(mcmc[1])
                 marginUncsUp.append(q[0])
-                marginUncsDown.append(q[0])
-                
+                marginUncsDown.append(q[1])
+               
+            print("best fit percentiles  = " + str(bestFits))
             pl.figure()
             fig = pl.errorbar(x, bestFits, yerr=[marginUncsDown, marginUncsUp], fmt='o')
             pl.xticks(range(len(labels)), labels, rotation='45')
             pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_bestFits.png")
+            pl.close()
+            
+            # make plots of best fit prediction versus data
+            pl.figure()
+            label_string_bestfit = "best-fit: ("
+            for c in range(0, len(config.coefficients)):
+                if (c == (len(config.coefficients) - 1)):
+                    label_string_bestfit = label_string_bestfit + coefficients[c] + " = " + '%.3f' % bestFits[c] + ")"
+                else:
+                    label_string_bestfit = label_string_bestfit + coefficients[c] + " = " + '%.3f' % bestFits[c] + ", "
+
+            pl.errorbar(config.x_vals, pb.makeRMPred(bestFits), fmt="m", xerr=0.0, yerr=0.0, label=label_string_bestfit)
+            pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=np.sqrt(np.diagonal(config.params["config"]["data"]["covariance_matrix"])), label=data_label)
+            pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, min_val, max_val])
+            ax = pl.gca()
+            labely = ax.set_xlabel(xlabel, fontsize = 18)
+            labely = ax.set_ylabel(ylabel, fontsize = 18)
+            ax.xaxis.set_label_coords(0.85, -0.065)
+            ax.yaxis.set_label_coords(-0.037, 0.83)
+            pl.legend(loc=2)
+            pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_bestfit" + "_predictions.png")
             pl.close()
             
             #make fit summary json
@@ -173,19 +191,26 @@ class summaryPlotter:
             uncX = np.absolute((np.diff(config.bins)))/2.0
             dataUncY = np.sqrt(np.diag(config.cov))
             pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=uncX, yerr=dataUncY, label=data_label)
-            pl.errorbar(config.x_vals, pb.makeRMPred(bestFits), fmt="m", xerr=0.0, yerr=0.0, label=label_string_bestfit)
+            #pl.errorbar(config.x_vals, pb.makeRMPred(bestFits), fmt="m", xerr=0.0, yerr=0.0, label=label_string_bestfit)
             
-            inds = np.random.randint(len(samples), size=100)
+            inds = np.random.randint(len(samples), size=99)
             for ind in inds:
                 sample = samples[ind]
-                pl.plot(config.x_vals, pb.makeRMPred(sample), "C1", alpha=0.1)
+                pl.plot(config.x_vals, pb.makeRMPred(sample), "C1",alpha=0.1)
                 #pl.plot(config.x_vals, np.dot(np.vander(config.x_vals, 2), sample[:2]), "C1", alpha=0.1)
                 #pl.plot(config.x_vals, sample[:2], "C1", alpha=0.1)
+
+            pl.plot(config.x_vals, pb.makeRMPred(samples[42]), "C1", label="100 random samples" ,alpha=0.1)
 
             #pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, min_val*0.5, max_val*1.5])
             #pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, 0.0, 10.0])
 
-            #pl.plot(x0, m_true * x0 + b_true, "k", label="truth")
+            ax = pl.gca()
+            labely = ax.set_xlabel(xlabel, fontsize = 18)
+            labely = ax.set_ylabel(ylabel, fontsize = 18)
+            ax.xaxis.set_label_coords(0.85, -0.065)
+            ax.yaxis.set_label_coords(-0.037, 0.83)
+            pl.legend(loc=2)
             pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_postFit" + "_predictions.png")
             pl.close()
 
@@ -204,16 +229,14 @@ class summaryPlotter:
             pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_walkerPaths.png")
             pl.close()
             
-
             ######################################################
             ###############   PLOT RESULTS   ####################
             ######################################################
-            print("best fit vals = " + str(mcmc_params))
-            print("uncertainties = " + str(np.sqrt(np.diag(mcmc_params_cov))))
-            print("cov mat = " + str(mcmc_params_cov))
+            
+            #mcmc_params = np.mean(sampler.flatchain,axis=0)
+            mcmc_params_cov = np.cov(np.transpose(sampler.flatchain))
 
             pl.figure()
-
             pl.matshow(mcmc_params_cov, cmap=pl.cm.Blues)
             pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "mcmc_params_cov.png")
             pl.close()

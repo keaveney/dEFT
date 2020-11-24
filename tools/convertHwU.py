@@ -1,6 +1,18 @@
 import numpy as np
 from array import *
 import math
+import sys
+
+#startRun = 1
+#endRun   = 162
+
+startRun = 163
+endRun   = 180
+
+nBins = 7
+nOps = 7
+obs = "ptZ"
+
 
 def convert(hwufile):
     #print "tools/yoda2array: converting yodafile to numpy array"
@@ -8,21 +20,18 @@ def convert(hwufile):
     read = "false"
     central_values = []
     final_array = []
-
-    print("converting " + str(hwufile))
     
-    for run in range(191,201):
+    for run in range(startRun,(endRun+1)):
         central_values = []
         if (run < 10):
             run_string = "run_0" + str(run) + "_LO/MADatNLO.HwU"
         else:
             run_string = "run_"  + str(run) + "_LO/MADatNLO.HwU"
             
-        print(run_string)
         file_string = hwufile + run_string
         with open(file_string, 'r') as f:
             for line in f:
-                if ( ("<histogram> 3" in line)):
+                if ( (obs in line)):
                     read = "true"
                 if (read == "true"):
                     if ((len(line.split("   ")) == 15)):
@@ -32,13 +41,13 @@ def convert(hwufile):
                         #print(line.split("   ")[2][1:]  )
                 if ("<\histogram>" in line):
                     read = "false"
-        print(central_values)
+        print(str(central_values) + ",")
         final_array = np.append(final_array, central_values)
-    final_array.reshape(10, 3)
+    final_array.reshape(((endRun-startRun)+1), nBins)
     return final_array
     
 preds = convert("../analyses/Events/")
-print(repr(preds.reshape(10,3)))
+#print(repr(preds.reshape(((endRun-startRun)+1),nBins)))
 
 
 def convertRun(runfile):
@@ -47,7 +56,7 @@ def convertRun(runfile):
     central_values = np.array([])
     final_array = []
 
-    print("converting " + str(runfile))
+    #print("converting " + str(runfile))
     
     central_values = []
             
@@ -55,15 +64,30 @@ def convertRun(runfile):
         for line in f:
             if ( ("fixed_order=ON" in line)):
                 read = "true"
+                central_values = np.append(central_values,float(1.12345678))
             if (read == "true"):
                 if (len(line.split(" ")) >3 ):
                     central_values = np.append(central_values,float(line.split(" ")[3]) )
                     #central_values.append(float(line.split(" ")[3]) )
             if ("#launch /tmp/twz_train/" in line):
                 read = "false"
-        print(central_values)
-        central_values.reshape(20, 3)
+        #print(central_values)
+        #central_values.reshape(endRun, nOps)
     return central_values
     
-#preds = convertRun("../run_twz_SMEFTATNLO_train.txt")
-#print(preds.reshape(20,3))
+totalPreds = np.array([])
+
+for p in range(9, 10):
+    fileName = "TWZ_7ops_train_" + str(p) + ".txt"
+    preds = convertRun(fileName)
+    totalPreds = np.concatenate((totalPreds, preds), axis=None)
+
+totalPreds= totalPreds.reshape(((endRun-startRun)+1),(nOps+1))
+
+np.set_printoptions(threshold=sys.maxsize)
+print(np.array2string(totalPreds, separator=','))
+
+#print(repr(totalPreds.reshape(endRun,(nOps+1))))
+
+#for pred in totalPreds:
+#    print(str(repr(pred)) + ",")
