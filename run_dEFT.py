@@ -82,19 +82,20 @@ if (len(sys.argv) <= 2):
     #print("p0 = " + str(p0))
     #p0 = np.zeros(ndim * nWalkers).reshape(nWalkers, ndim)
 
+    nll = lambda *args: lnprob(*args)
+
+    #soln = minimize(nll, p0, args=(config.params["config"]["data"]["central_values"], config.icov))
+
     print("RUNNING THE FIT 1")
 
-    with Pool(processes=6) as pool:
-        sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob, args=[config.params["config"]["data"]["central_values"], config.icov])
-
-#    sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob,  pool=pool, args=[config.params["config"]["data"]["central_values"], config.icov])
-
+    #with Pool() as pool:
+    sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob, args=[config.params["config"]["data"]["central_values"], config.icov])
     pos, prob, state = sampler.run_mcmc(p0, nBurnIn,  progress=True)
-    #print "pos " + str(pos)
     sampler.reset()
     sampler.run_mcmc(pos,nTotal,  progress=True)
 
     samples = sampler.chain.reshape((-1, ndim))
+
     if isinstance(samples, np.ndarray):
         print("is numpy array")
 
