@@ -10,7 +10,7 @@ from matplotlib import rc
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 ## for Palatino and other serif fonts use:
 #rc('font',**{'family':'serif','serif':['Palatino']})
-rc('text', usetex=True)
+rc('text')
 
 
 class summaryPlotter:
@@ -67,9 +67,9 @@ class summaryPlotter:
             label_string_bestfit = "best-fit: ("
             for c in range(0, len(config.coefficients)):
                 if (c == (len(config.coefficients) - 1)):
-                    label_string_bestfit = label_string_bestfit + coefficients[c] + " = " + '%.3f' % mcmc_params[c] + ")"
+                    label_string_bestfit = label_string_bestfit + coefficients[c] + " = " + '%.1f' % mcmc_params[c] + ")"
                 else:
-                    label_string_bestfit = label_string_bestfit + coefficients[c] + " = " + '%.3f' % mcmc_params[c] + ", "
+                    label_string_bestfit = label_string_bestfit + coefficients[c] + " = " + '%.1f' % mcmc_params[c] + ", "
 
             pl.errorbar(config.x_vals, pb.makeRMPred(mcmc_params), fmt="m", xerr=0.0, yerr=0.0, label=label_string_bestfit)
             pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=0.05, label=data_label)

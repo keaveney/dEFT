@@ -2,6 +2,8 @@ from tools.predBuilder import predBuilder
 from tools.summaryPlotter import summaryPlotter
 from tools.modelValidator import modelValidator
 
+from schwimmbad import MPIPool
+
 from scipy.optimize import minimize
 import numpy as np
 import emcee
@@ -84,15 +86,18 @@ if (len(sys.argv) <= 2):
 
     print("RUNNING THE FIT 1")
 
-    with Pool(processes=6) as pool:
-        sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob, args=[config.params["config"]["data"]["central_values"], config.icov])
+    with Pool(processes=40) as pool:
+#    with MPIPool() as pool:
+#        if not pool.is_master():
+#            pool.wait()
+#            sys.exit(0)
+        sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob, pool=pool, args=[config.params["config"]["data"]["central_values"], config.icov])
 
 #    sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob,  pool=pool, args=[config.params["config"]["data"]["central_values"], config.icov])
-
-    pos, prob, state = sampler.run_mcmc(p0, nBurnIn,  progress=True)
+        pos, prob, state = sampler.run_mcmc(p0, nBurnIn)
     #print "pos " + str(pos)
-    sampler.reset()
-    sampler.run_mcmc(pos,nTotal,  progress=True)
+        sampler.reset()
+        sampler.run_mcmc(pos,nTotal)
 
     samples = sampler.chain.reshape((-1, ndim))
     if isinstance(samples, np.ndarray):
