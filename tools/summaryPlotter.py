@@ -10,7 +10,7 @@ from matplotlib import rc
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 ## for Palatino and other serif fonts use:
 #rc('font',**{'family':'serif','serif':['Palatino']})
-rc('text', usetex=True)
+rc('text')
 
 
 class summaryPlotter:
@@ -57,8 +57,30 @@ class summaryPlotter:
                 plotfilename = str(config.params["config"]["run_name"]) + "_results/" + str(config.params["config"]["run_name"]) + "_" + coefficients[c] + "_predictions.png"
                 pl.savefig(plotfilename)
                 pl.close()
+            
+            #second make plots of best fit prediction versus data
+            pl.figure()
+            label_string_bestfit = "best-fit: ("
+            for c in range(0, len(config.coefficients)):
+                if (c == (len(config.coefficients) - 1)):
+                    label_string_bestfit = label_string_bestfit + coefficients[c] + " = " + '%.1f' % mcmc_params[c] + ")"
+                else:
+                    label_string_bestfit = label_string_bestfit + coefficients[c] + " = " + '%.1f' % mcmc_params[c] + ", "
 
-            #  make "corner" plots
+            pl.errorbar(config.x_vals, pb.makeRMPred(mcmc_params), fmt="m", xerr=0.0, yerr=0.0, label=label_string_bestfit)
+            pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=0.05, label=data_label)
+            pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, min_val, max_val])
+            ax = pl.gca()
+            labely = ax.set_xlabel(xlabel, fontsize = 18)
+            labely = ax.set_ylabel(ylabel, fontsize = 18)
+            ax.xaxis.set_label_coords(0.85, -0.065)
+            ax.yaxis.set_label_coords(-0.037, 0.83)
+            pl.legend(loc=2)
+            pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_bestfit" + "_predictions.png")
+            pl.close()
+
+            #third  make "corner" plots
+
             labels = []
             ranges  = []
             for c in config.params["config"]["model"]["prior_limits"].keys():
@@ -66,7 +88,6 @@ class summaryPlotter:
                 labels.append(label)
                 #ranges.append(1.0)
                 ranges.append(config.params["config"]["model"]["prior_limits"][c])
-
             
             #print "samples " + str(samples)
             #df = pd.DataFrame.from_records(sampler.get_blobs(flat=True, discard=100, thin=30))
