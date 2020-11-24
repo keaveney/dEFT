@@ -2,6 +2,7 @@
 # for predictions for an observable in an EFT
 import numpy as np
 import random
+import sys
 from predBuilder import predBuilder
 
 #ops = ["4", "5", "6", "8", "10"]
@@ -16,6 +17,10 @@ from predBuilder import predBuilder
 
 #cHWB:3 cW,:6, cHB:10, cHt:15, ctZ:22, ctW:23, ctG:24,
 
+nTasks  = 10
+nSamples = 180
+
+
 ops = ["3", "6", "10", "15", "22", "23", "24"]
 
 nOps = len(ops)
@@ -24,10 +29,9 @@ pb = predBuilder()
 
 def genRandomCoeffSets(nOps):
     boostFact = 3.0
-    nSamples = 2*pb.nSamples(nOps)
-    nSamples = 10
+    #nSamples = 2*pb.nSamples(nOps)
     coeffSets = []
-    
+
     for s in range(0, int(nSamples)):
         coeffSet = []
         coeffSet.append(1.0)
@@ -64,23 +68,59 @@ def genRandomPreds(nOps):
 
 def writeProcCard(randCoeffSet):
 
-    #print("import dim6top_LO_UFO")
-    print("import SMEFTatNLO-NLO")
-    print("define p = p b b~")
-    print("define tp = t t~")
-    print("define w = w+ w-")
-    print("define l+ = e+ mu+")
-    print("define l- = e- mu-")
-    print("define vl = ve vm")
-    print("define vl~ = ve~ vm~")
-    print("define lept = l+ l- vl vl~")
-    print("generate p p > tp w z QCD=1 QED=2 NP=1 [QCD]")
-    #print("generate p p > tp w z FCNC=0 DIM6=1")
-    #print("generate p p > t t~ FCNC=0 DIM6=1, (t > w+ b DIM6=0, w+ > lept lept DIM6=0),(t~ > w- b~ DIM6=0, w- > lept lept DIM6=0)")
-    print("output /tmp/twz_train_7ops/")
-        
+    genFileName = "TWZ_7ops_gen.txt"
+    genFile = open(genFileName, "w")
+
+    #genFile.write("import dim6top_LO_UFO")
+    genFile.write("import SMEFTatNLO-NLO")
+    genFile.write("define p = p b b~")
+    genFile.write("define tp = t t~")
+    genFile.write("define w = w+ w-")
+    genFile.write("define l+ = e+ mu+")
+    genFile.write("define l- = e- mu-")
+    genFile.write("define vl = ve vm")
+    genFile.write("define vl~ = ve~ vm~")
+    genFile.write("define lept = l+ l- vl vl~")
+    genFile.write("generate p p > tp w z QCD=1 QED=2 NP=1 [QCD]")
+    #genFile.write("generate p p > tp w z FCNC=0 DIM6=1")
+    #genFile.write("generate p p > t t~ FCNC=0 DIM6=1, (t > w+ b DIM6=0, w+ > lept lept DIM6=0),(t~ > w- b~ DIM6=0, w- > lept lept DIM6=0)")
+    #genFile.write("output /tmp/twz_train_7ops/")
+    genFile.write("output /scratch/james/twz_train_7ops/")
+    genFile.close()
+    
+    randCoeffSetAr = np.array(randCoeffSet)
+    print("SHAPE = " + str(randCoeffSetAr.shape))
+
+    #randCoeffSetAr = np.reshape(randCoeffSetAr, (nTasks,-1))
+    print("SHAPE = " + str(randCoeffSetAr.shape[0]))
+   
+    pointsFileName = "pointsFile.txt"
+    np.savetxt(pointsFileName,randCoeffSetAr, delimiter=',', newline='\n' )
+    
+    if ((nSamples % nTasks) != 0):
+        sys.exit("nPoints must be an integer multiple of nTasks... exiting")
+    
+    for task in range(0,nTasks):
+        trainFileName = "TWZ_7ops_train_" + str(task) + ".txt"
+        trainFile = open(trainFileName, "w")
+    
+        nSamplesPerTask = int(nSamples/nTasks)
+        print("samples per task  = " +str(nSamplesPerTask))
+
+        for point in range(0, nSamplesPerTask):
+            trainFile.write("launch /scratch/james/twz_train_7ops/\n")
+            trainFile.write("order=LO\n")
+            trainFile.write("fixed_order=ON\n")
+            
+            pointIndex = (task * ((nSamples/nTasks))) + point
+            print("pointIndex = " +str(int(pointIndex)))
+            for c in range(1, len(randCoeffSet[int(pointIndex)])):
+                trainFile.write("set DIM62F " + str(ops[c-1]) + " " + str(randCoeffSet[int(pointIndex)][c])+ "\n")
+        trainFile.close()
+
     for sample in range(0, len(randCoeffSet)):
-        print("launch /tmp/twz_train_7ops/")
+        #print("launch /tmp/twz_train_7ops/")
+        print("launch /scratch/james/twz_train_7ops/")
         print("order=LO")
         print("fixed_order=ON")
         #if sample ==0:
