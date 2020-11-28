@@ -2,8 +2,6 @@ from tools.predBuilder import predBuilder
 from tools.summaryPlotter import summaryPlotter
 from tools.modelValidator import modelValidator
 
-from schwimmbad import MPIPool
-
 from scipy.optimize import minimize
 import numpy as np
 import emcee
@@ -28,6 +26,9 @@ pb = predBuilder()
 
 if(config.params["config"]["model"]["input"] == "numpy"):
     pb.initRM(len(config.params["config"]["model"]["prior_limits"]), np.asarray(config.params["config"]["model"]["samples"]), np.asarray(config.params["config"]["model"]["predictions"]))
+
+
+print("SM point is  = " + str(pb.makeRMPred(np.zeros(len(config.params["config"]["model"]["prior_limits"])))))
 
 
 ##############################################################
@@ -86,19 +87,18 @@ if (len(sys.argv) <= 2):
 
     nll = lambda *args: lnprob(*args)
 
-
-    with Pool(processes=40) as pool:
+    #with Pool(processes=4) as pool:
 #    with MPIPool() as pool:
 #        if not pool.is_master():
 #            pool.wait()
 #            sys.exit(0)
-        sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob, pool=pool, args=[config.params["config"]["data"]["central_values"], config.icov])
+    sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob, args=[config.params["config"]["data"]["central_values"], config.icov])
 
 #    sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob,  pool=pool, args=[config.params["config"]["data"]["central_values"], config.icov])
-        pos, prob, state = sampler.run_mcmc(p0, nBurnIn)
+    pos, prob, state = sampler.run_mcmc(p0, nBurnIn, progress=True)
     #print "pos " + str(pos)
-        sampler.reset()
-        sampler.run_mcmc(pos,nTotal)
+    sampler.reset()
+    sampler.run_mcmc(pos,nTotal, progress=True)
 
     samples = sampler.chain.reshape((-1, ndim))
 

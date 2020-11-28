@@ -17,9 +17,8 @@ from predBuilder import predBuilder
 
 #cHWB:3 cW,:6, cHB:10, cHt:15, ctZ:22, ctW:23, ctG:24,
 
-nTasks  = 10
-nSamples = 180
-
+nTasks  = 5
+nSamples = 150
 
 ops = ["3", "6", "10", "15", "22", "23", "24"]
 
@@ -101,14 +100,16 @@ def writeProcCard(randCoeffSet):
         sys.exit("nPoints must be an integer multiple of nTasks... exiting")
     
     for task in range(0,nTasks):
-        trainFileName = "TWZ_7ops_train_" + str(task) + ".txt"
+#        trainFileName = "TWZ_7ops_train_" + str(task) + ".txt"
+        trainFileName = "TZQ_7ops_train_" + str(task) + ".txt"
         trainFile = open(trainFileName, "w")
     
         nSamplesPerTask = int(nSamples/nTasks)
         print("samples per task  = " +str(nSamplesPerTask))
 
         for point in range(0, nSamplesPerTask):
-            trainFile.write("launch /scratch/james/twz_train_7ops/\n")
+#            trainFile.write("launch /scratch/james/twz_train_7ops/\n")
+            trainFile.write("launch /scratch/james/tzq_train/\n")
             trainFile.write("order=LO\n")
             trainFile.write("fixed_order=ON\n")
             
@@ -120,7 +121,8 @@ def writeProcCard(randCoeffSet):
 
     for sample in range(0, len(randCoeffSet)):
         #print("launch /tmp/twz_train_7ops/")
-        print("launch /scratch/james/twz_train_7ops/")
+#        print("launch /scratch/james/twz_train_7ops/")
+        print("launch /scratch/james/tzq_train/")
         print("order=LO")
         print("fixed_order=ON")
         #if sample ==0:

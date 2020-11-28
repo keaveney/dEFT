@@ -18,6 +18,9 @@ class summaryPlotter:
                     
             cmd = "mkdir -p " + str(config.params["config"]["run_name"]) + "_results"
             os.system(cmd)
+            
+            mcmc_params = np.mean(sampler.flatchain,axis=0)
+            mcmc_params_cov = np.cov(np.transpose(sampler.flatchain))
         
             #print "pred len " + str (config.params["config"]["data"]["bins"])
             #print "sm pred len  " + str (config.predictions['SM'])
@@ -233,9 +236,6 @@ class summaryPlotter:
             ###############   PLOT RESULTS   ####################
             ######################################################
             
-            #mcmc_params = np.mean(sampler.flatchain,axis=0)
-            mcmc_params_cov = np.cov(np.transpose(sampler.flatchain))
-
             pl.figure()
             pl.matshow(mcmc_params_cov, cmap=pl.cm.Blues)
             pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "mcmc_params_cov.png")

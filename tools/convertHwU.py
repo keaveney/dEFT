@@ -3,16 +3,22 @@ from array import *
 import math
 import sys
 
-#startRun = 1
-#endRun   = 162
+startRun = 121
+endRun   = 150
 
-startRun = 163
-endRun   = 180
+#startRun = 226
+#endRun   = 243
+
+
+#startRun = 163
+#endRun   = 180
 
 nBins = 7
 nOps = 7
 obs = "ptZ"
 
+procDirName = "tzq_train"
+procFileStem = "TZQ_7ops_train_"
 
 def convert(hwufile):
     #print "tools/yoda2array: converting yodafile to numpy array"
@@ -64,12 +70,12 @@ def convertRun(runfile):
         for line in f:
             if ( ("fixed_order=ON" in line)):
                 read = "true"
-                central_values = np.append(central_values,float(1.12345678))
+                central_values = np.append(central_values,float(1.00000001))
             if (read == "true"):
                 if (len(line.split(" ")) >3 ):
                     central_values = np.append(central_values,float(line.split(" ")[3]) )
                     #central_values.append(float(line.split(" ")[3]) )
-            if ("#launch /tmp/twz_train/" in line):
+            if ("#launch /tmp/" + procDirName + "/" in line):
                 read = "false"
         #print(central_values)
         #central_values.reshape(endRun, nOps)
@@ -77,12 +83,15 @@ def convertRun(runfile):
     
 totalPreds = np.array([])
 
-for p in range(9, 10):
-    fileName = "TWZ_7ops_train_" + str(p) + ".txt"
+for p in range(4, 5):
+    fileName = procFileStem + str(p) + ".txt"
     preds = convertRun(fileName)
     totalPreds = np.concatenate((totalPreds, preds), axis=None)
 
-totalPreds= totalPreds.reshape(((endRun-startRun)+1),(nOps+1))
+totalPreds = totalPreds.reshape(((endRun-startRun)+1),(nOps+1))
+
+print("shap totalPreds = " + str(totalPreds.shape))
+
 
 np.set_printoptions(threshold=sys.maxsize)
 print(np.array2string(totalPreds, separator=','))
