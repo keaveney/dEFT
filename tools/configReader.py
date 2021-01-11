@@ -8,8 +8,6 @@ class configReader:
         self.filename = filename
         coefficients = []
         predictions = {}
-        #print "initialising with file " + self.filename
-        #Read JSON data into the datastore variable
         with open(filename, 'r') as f:
             config = json.load(f)
         self.params = config
@@ -18,15 +16,16 @@ class configReader:
         self.bins = self.params["config"]["data"]["bins"]
         self.data = self.params["config"]["data"]["central_values"]
         self.prior_limits = self.params["config"]["model"]["prior_limits"]
+        self.tex_labels = self.params["config"]["model"]["tex_labels"]
         self.coefficients = list(self.params["config"]["model"]["prior_limits"].keys())
-        print(" Number of operators to be studied =  " + str(len(self.coefficients)))
         self.n_walkers = self.params["config"]["fit"]["n_walkers"]
         self.n_burnin = self.params["config"]["fit"]["n_burnin"]
         self.n_total = self.params["config"]["fit"]["n_total"]
         self.cov = self.params["config"]["data"]["covariance_matrix"]
         self.icov = inv(self.params["config"]["data"]["covariance_matrix"])
         self.x_vals = self.params["config"]["data"]["bins"]
-        self.cross_terms = self.params["config"]["model"]["cross_terms"]
+        self.samples = np.asarray(self.params["config"]["model"]["samples"])
+
         slabels=[]
         for c in self.coefficients:
             slab = "$" + c + "$"
@@ -41,18 +40,9 @@ class configReader:
             basestring
         except NameError:
             basestring = str
-
+            
         if(self.params["config"]["model"]["input"] == "numpy"):
-            print("input predictions expected as numpy arrays")
-        elif(self.params["config"]["model"]["input"] == "yoda"):
-            print("input predictions expected as yoda files")
-            for predname in self.params["config"]["model"]["predictions"].keys():
-                if (isinstance(self.params["config"]["model"]["predictions"][predname], basestring)):
-                    predictions[predname] = yoda2array.convert(self.params["config"]["model"]["predictions"][predname], self.params["config"]["model"]["histname"])
-                else:
-                    predictions[predname] = np.asarray(self.params["config"]["model"]["predictions"][predname])
-            self.predictions = predictions
-
+            self.predictions = np.asarray(self.params["config"]["model"]["predictions"])
 
 
 
