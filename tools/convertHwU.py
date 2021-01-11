@@ -2,8 +2,12 @@ import numpy as np
 from array import *
 import math
 import sys
+import matplotlib.pyplot as pl
+from matplotlib import gridspec
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-startRun = 121
+
+startRun = 1
 endRun   = 150
 
 #startRun = 226
@@ -13,12 +17,12 @@ endRun   = 150
 #startRun = 163
 #endRun   = 180
 
-nBins = 7
-nOps = 7
+nBins = 5
+nOps = 6
 obs = "ptZ"
 
-procDirName = "tzq_train"
-procFileStem = "TZQ_7ops_train_"
+procDirName = "twz_train_6ops_lo"
+procFileStem = "TWZ_6ops_train_"
 
 def convert(hwufile):
     #print "tools/yoda2array: converting yodafile to numpy array"
@@ -52,9 +56,8 @@ def convert(hwufile):
     final_array.reshape(((endRun-startRun)+1), nBins)
     return final_array
     
-preds = convert("../analyses/Events/")
-#print(repr(preds.reshape(((endRun-startRun)+1),nBins)))
-
+preds = convert("../analyses/twz_train_6ops_lo/Events/")
+print(repr(preds.reshape(((endRun-startRun)+1),nBins)))
 
 def convertRun(runfile):
     #print "tools/yoda2array: converting yodafile to numpy array"
@@ -83,7 +86,7 @@ def convertRun(runfile):
     
 totalPreds = np.array([])
 
-for p in range(4, 5):
+for p in range(0, 5):
     fileName = procFileStem + str(p) + ".txt"
     preds = convertRun(fileName)
     totalPreds = np.concatenate((totalPreds, preds), axis=None)
@@ -92,11 +95,16 @@ totalPreds = totalPreds.reshape(((endRun-startRun)+1),(nOps+1))
 
 print("shap totalPreds = " + str(totalPreds.shape))
 
-
 np.set_printoptions(threshold=sys.maxsize)
-print(np.array2string(totalPreds, separator=','))
+#print(np.array2string(totalPreds, separator=','))
 
 #print(repr(totalPreds.reshape(endRun,(nOps+1))))
 
 #for pred in totalPreds:
 #    print(str(repr(pred)) + ",")
+
+
+
+
+
+

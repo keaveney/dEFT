@@ -97,15 +97,18 @@ class summaryPlotter:
     
     #        fig = corner.corner(x, quantiles=(0.16, 0.84), levels=(1-np.exp(-0.5),))
 
-            texLabels = ["$c_{HWB}$","$c_{W}$","$c_{HB}$","$c_{Ht}$","$c_{tZ}$","$c_{t W}$","$c_{tG}$"]
+            #texLabels = ["$c_{HWB}$","$c_{W}$","$c_{HB}$","$c_{Ht}$","$c_{tZ}$","$c_{t W}$","$c_{tG}$"]
             
+            texLabels = ["$c_{tZ}$","$c_{t W}$","$c_{t\phi}$","$c^{1}_\phi Q}$","$c^{M}_\phi Q}$","$c_{tG}$"]
+
             #fig = corner.corner(samples, plot_contours=False, labels=texLabels,
             #                    range=ranges, truths=np.zeros(len(labels)),
             #                    show_titles=True, title_kwargs={"fontsize": 18})
 
             fig = corner.corner(samples, labels=texLabels,
+                                label_kwargs={"fontsize": 18},
                                 range=ranges,
-                                quantiles=[0.16, 0.5, 0.84],
+                                quantiles=[0.16, 0.84],
                                 truths=np.zeros(len(labels)),
                                 show_titles=True, title_kwargs={"fontsize": 18})
 
@@ -151,9 +154,44 @@ class summaryPlotter:
                
             print("best fit percentiles  = " + str(bestFits))
             pl.figure()
-            fig = pl.errorbar(x, bestFits, yerr=[marginUncsDown, marginUncsUp], fmt='o')
-            pl.xticks(range(len(labels)), labels, rotation='45')
+            pl.tight_layout()
+            pl.gcf().subplots_adjust(bottom=0.15)
+
+            fig = pl.errorbar(x, bestFits, yerr=[marginUncsDown, marginUncsUp], fmt='o', label=r'median and CI')
+            pl.xticks(range(len(labels)), texLabels, rotation='45', fontsize = 21)
+            ax = pl.gca()
+            ax.yaxis.set_label_coords(-0.075, 0.83)
+            labely = ax.set_ylabel(r"$c_{i}$ [$GeV^{-2}$]", fontsize = 18)
+            pl.legend(loc=2, fontsize = 18)
             pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_bestFits.png")
+            pl.close()
+            
+            ############################################
+            ######## Corner with 1-d CL overlaid  ######
+            ############################################
+            
+            fig_overlay = corner.corner(samples, labels=texLabels,
+                    label_kwargs={"fontsize": 21},
+                    range=ranges,
+                    quantiles=[0.16, 0.84],
+                    truths=np.zeros(len(labels)),
+                    show_titles=True, title_kwargs={"fontsize": 19})
+                    
+            resplot = image.imread(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_bestFits.png")
+
+            ax0 = fig_overlay.add_subplot(322)
+            ax0.axis('off')
+            img = ax0.imshow(resplot)
+            
+            logo = image.imread('logo/dEFT_logo.png')
+
+            ax0 = fig_overlay.add_subplot(5,5,15)
+            ax0.axis('off')
+            img = ax0.imshow(logo)
+
+            plotfilename = str(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_overlay.png")
+
+            fig_overlay.savefig(plotfilename)
             pl.close()
             
             # make plots of best fit prediction versus data
@@ -231,11 +269,7 @@ class summaryPlotter:
 
             pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_walkerPaths.png")
             pl.close()
-            
-            ######################################################
-            ###############   PLOT RESULTS   ####################
-            ######################################################
-            
+                        
             pl.figure()
             pl.matshow(mcmc_params_cov, cmap=pl.cm.Blues)
             pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "mcmc_params_cov.png")
