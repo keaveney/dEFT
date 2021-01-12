@@ -1,12 +1,6 @@
 import numpy as np
 import itertools
-import sklearn
-
-# linear regression for multioutput
-from sklearn.datasets import make_regression
 from sklearn.linear_model import LinearRegression
-
-from itertools import combinations
 
 class predBuilder:
 
@@ -21,7 +15,7 @@ class predBuilder:
             X = np.array([])
             for row in ci:
                 X = np.append(X, row**2)
-                combs = combinations(list(row), 2)
+                combs = itertools.combinations(list(row), 2)
                 num_rows = np.shape(ci)[0]
                 for comb in combs:
                     X = np.append(X, comb[0]*comb[1])
@@ -33,7 +27,7 @@ class predBuilder:
         def makeCoeffPoint(self, ci):
             X = np.array([])
             X = np.append(X, ci**2)
-            combs = combinations(list(ci), 2)
+            combs = itertools.combinations(list(ci), 2)
             for comb in combs:
                 X = np.append(X, comb[0]*comb[1])
     
@@ -42,19 +36,14 @@ class predBuilder:
             return X
             
         def initRM(self, nOps, samples, preds):
-            # declare "model" object for scikit-learn (probably outside of init() method)
-            # read in train points and predictions from json input
-            # run 'fit()'
-            # need method to convert ci point to 'couplings' vector?
-            
+  
             if (len(preds) <= self.nSamples(nOps)):
-                print("ERROR: constraining " + str(nOps) + " coefficients requires at least " + str(self.nSamples(nOps)) + " samples,  but " + str(len(preds)) + " are provided")
-
+                raise TypeError("morphing with " + str(nOps) + " coefficients requires at least " + str(self.nSamples(nOps)) + " samples,  but only " + str(len(preds)) + " are provided")
+            
             self.nOps = nOps
             cInputAr = np.array([])
             
-
-            #convert to vector of "couplings" to make the morphing a linear system
+            #convert to vector of coefficient factors to linearise the morphing
             cInputAr = self.makeCoeff(samples)
             
             # define model
@@ -62,18 +51,10 @@ class predBuilder:
 
             # fit model
             model.fit(cInputAr, preds)
-            
-            #print("n test points = " + str(cInputAr[0]) + "n predictions = " + str(len(preds[0])) )
-            
-            c = np.array([1.0, 24.920763888374044, 6.988302790442056, 0.24257571778552145, -24.381823700819854, 2.6365359630424203, 5.850613285030119, 7.7411147706635095])
-            test = self.makeCoeffPoint(c)
 
             self.model = model
             
         def makeRMPred(self,c):
-
-            testc = np.array([1.0, 24.920763888374044, 6.988302790442056, 0.24257571778552145, -24.381823700819854, 2.6365359630424203, 5.850613285030119, 7.7411147706635095])
-            test = self.makeCoeffPoint(testc)
 
             c = np.append(1.0, c)
             cInputAr = self.makeCoeffPoint(c)
@@ -82,9 +63,10 @@ class predBuilder:
             return pred[0]
         
         def init(self, nOps, samples, preds):
+            # 'exact' morphing, soon to be defunct
         
             if (len(preds) <= self.nSamples(nOps)):
-                print("ERROR: constraining " + str(nOps) + " coefficients requires at least " + str(self.nSamples(nOps)) + " samples,  but " + str(len(preds)) + " are provided")
+                raise TypeError("morphing with " + str(nOps) + " coefficients requires at least " + str(self.nSamples(nOps)) + " samples,  but only " + str(len(preds)) + " are provided")
 
             self.nOps = nOps
             cInputAr = np.array([])
@@ -110,14 +92,9 @@ class predBuilder:
 
             cInputAr = np.reshape(cInputAr,(len(samples),len(samples)))
             cInputAr = np.transpose(cInputAr)
-            print("cInputAr = " + str(cInputAr))
-
             cInputAr.tofile("cInputAr.txt", sep=" ", format="%s")
 
-            print("cInputAr det = " + str(np.linalg.det(cInputAr)))
-
             inWeightsAr = np.linalg.inv(cInputAr)
-            print("inWeightsAr = " + str(inWeightsAr))
 
             self.inWeightsAr = inWeightsAr
             inPreds = preds.transpose()

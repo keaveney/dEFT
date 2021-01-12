@@ -43,6 +43,11 @@ class configReader:
             
         if(self.params["config"]["model"]["input"] == "numpy"):
             self.predictions = np.asarray(self.params["config"]["model"]["predictions"])
+            
+        
+        if (len(self.predictions) != len(self.samples)):
+            raise TypeError('number of samples must equal number of predictions')
+
 
 
 
