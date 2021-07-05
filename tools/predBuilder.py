@@ -12,6 +12,7 @@ class predBuilder:
             return tN
             
         def makeCoeff(self, ci):
+
             X = np.array([])
             for row in ci:
                 X = np.append(X, row**2)
@@ -25,6 +26,7 @@ class predBuilder:
             return X
             
         def makeCoeffPoint(self, ci):
+
             X = np.array([])
             X = np.append(X, ci**2)
             combs = itertools.combinations(list(ci), 2)
@@ -32,13 +34,16 @@ class predBuilder:
                 X = np.append(X, comb[0]*comb[1])
     
             X = X.reshape(1, self.triangularNumber(len(ci)))
-        
+
             return X
             
-        def initRM(self, nOps, samples, preds):
+        def initRM(self, nOps, samples, preds, kfac):
   
-            if (len(preds) <= self.nSamples(nOps)):
+            if (len(preds) < self.nSamples(nOps)):
                 raise TypeError("morphing with " + str(nOps) + " coefficients requires at least " + str(self.nSamples(nOps)) + " samples,  but only " + str(len(preds)) + " are provided")
+            
+            #apply inclusive k-factor to preds
+            preds = kfac*preds
             
             self.nOps = nOps
             cInputAr = np.array([])
@@ -50,6 +55,7 @@ class predBuilder:
             model = LinearRegression()
 
             # fit model
+
             model.fit(cInputAr, preds)
 
             self.model = model
@@ -58,6 +64,7 @@ class predBuilder:
 
             c = np.append(1.0, c)
             cInputAr = self.makeCoeffPoint(c)
+
             pred = self.model.predict(cInputAr)
             
             return pred[0]

@@ -17,8 +17,8 @@ from predBuilder import predBuilder
 
 #cHWB:3 cW,:6, cHB:10, cHt:15, ctZ:22, ctW:23, ctG:24,
 
-nTasks  = 5
-nSamples = 150
+nTasks  = 1
+nSamples = 30
 
 #ops = ["3", "6", "10", "15", "22", "23", "24"]
 
@@ -41,7 +41,8 @@ def genRandomCoeffSets(nOps):
         for c in range(0, nOps):
             signs = [-1.0, 1.0]
             coeffSign = random.choice(signs)
-            coeffMag = float(random.uniform(0,30))
+            coeffMag = float(random.uniform(0,2))
+            #coeffMag = float(random.uniform(0,30))
             randCoeff = coeffSign*coeffMag
             coeffSet.append(randCoeff)
 
@@ -62,7 +63,8 @@ def genRandomPreds(nOps):
         #can make loop here for binned predictions
         #pred = np.append(pred, random.uniform(-100.0,100.0))
         #preds = np.append(preds, pred)
-        pred.append(random.uniform(-50.0,50.0))
+        #pred.append(random.uniform(-50.0,50.0))
+        pred.append(random.uniform(-5.0,5.0))
         preds.append(pred)
 
     #np.reshape(preds, (int(nSamples),1))

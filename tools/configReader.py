@@ -25,6 +25,7 @@ class configReader:
         self.icov = inv(self.params["config"]["data"]["covariance_matrix"])
         self.x_vals = self.params["config"]["data"]["bins"]
         self.samples = np.asarray(self.params["config"]["model"]["samples"])
+        self.kfac = np.asarray(self.params["config"]["model"]["inclusive_k_factor"])
 
         slabels=[]
         for c in self.coefficients:

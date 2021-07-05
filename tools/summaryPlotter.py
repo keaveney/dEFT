@@ -1,15 +1,20 @@
 import matplotlib.pyplot as pl
 import matplotlib.image as image
 import matplotlib.ticker as mticker
+from matplotlib import gridspec
 
 import numpy as np
 import corner
 import os
 import json
 
-from matplotlib import rc
-rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
-rc('text')
+#from matplotlib import rc
+#rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+#rc('text')
+
+#rc('font',**{'family':'serif','serif':['Palatino']})
+#pl.rcParams['pdf.fonttype'] = 42
+
 
 class summaryPlotter:
     def summarise(self, config, pb, sampler, samples):
@@ -51,7 +56,8 @@ class summaryPlotter:
 
             #  make "corner" plot
             labels = []
-            ranges  = []
+            ranges = []
+            #ranges  = np.full((len(config.params["config"]["model"]["prior_limits"].keys()),1), 0.95)
             for c in config.params["config"]["model"]["prior_limits"].keys():
                 label = "$" + c + "$"
                 labels.append(label)
@@ -75,10 +81,11 @@ class summaryPlotter:
             fig.savefig(plotfilename)
             pl.close()
             
-            
             bestFits = []
             marginUncsUp = []
             marginUncsDown = []
+            marginUncsUp95 = []
+            marginUncsDown95 = []
             x = []
     
             for i in range(len(labels)):
@@ -88,35 +95,60 @@ class summaryPlotter:
                 txt = txt.format(mcmc[1], q[0], q[1], labels[i])
                 x.append(i)
                 bestFits.append(mcmc[1])
-                marginUncsUp.append(q[0])
-                marginUncsDown.append(q[1])
-               
+                marginUncsUp.append(q[1])
+                marginUncsDown.append(q[0])
+                
+                mcmc95 = np.percentile(samples[:, i], [2.5, 50.0, 97.5])
+                q = np.diff(mcmc95)
+                marginUncsUp95.append(q[1])
+                marginUncsDown95.append(q[0])
+
             pl.figure()
             pl.tight_layout()
             pl.gcf().subplots_adjust(bottom=0.15)
 
-            fig = pl.errorbar(x, bestFits, yerr=[marginUncsDown, marginUncsUp], fmt='o', label=r'posterior median and CI')
-            pl.xticks(range(len(labels)), config.tex_labels, rotation='45', fontsize = 21)
+            marginUncsDown95ForPlot = np.array(marginUncsDown95) - np.array(bestFits)
+            marginUncsUp95ForPlot = np.array(marginUncsUp95) - np.array(bestFits)
+
+            fig = pl.errorbar(x, np.zeros(len(labels)), yerr=[marginUncsDown95ForPlot, marginUncsUp95ForPlot], fmt='none', linestyle=None, elinewidth=18, label=r' median and 95% CI')
+            pl.xticks(range(len(labels)), config.tex_labels, rotation='45', fontsize = 25)
+            pl.yticks(fontsize = 22)
+            pl.locator_params(axis='y', nbins=6)
+            plotTitle ="95% credible intervals"
+            pl.title(plotTitle,fontsize = 28 )
+
             ax = pl.gca()
-            ax.yaxis.set_label_coords(-0.075, 0.83)
-            labely = ax.set_ylabel(r"$c_{i}$ [$GeV^{-2}$]", fontsize = 18)
-            pl.legend(loc=1, fontsize = 14)
+            ax.tick_params(axis='x', pad=-3)
+            ax.yaxis.set_label_coords(-0.085, 0.75)
+            labely = ax.set_ylabel(r"$c_{i}/\Lambda^{2}$ [$TeV^{-2}$]", fontsize = 22)
+            #pl.legend(loc=1, fontsize = 21)
             pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_bestFits.png")
             pl.close()
+            
+            #Write medians/CIs to text file
+            results_file_name = config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_postFit" + "_results.txt"
+            np.savetxt(results_file_name, (bestFits,marginUncsDown,marginUncsUp))   # x,y,z equal sized 1D arrays
+            
+            results_file_name = config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_postFit" + "_results_95.txt"
+            np.savetxt(results_file_name, (np.zeros(len(labels)),marginUncsDown95ForPlot,marginUncsUp95ForPlot))   # x,y,z equal sized 1D arrays
             
             ############################################
             ######## Corner with 1-d CL overlaid  ######
             ############################################
             
             fig_overlay = corner.corner(samples, labels=config.tex_labels,
-                    label_kwargs={"fontsize": 21},
+                    label_kwargs={"fontsize": 23},
+                    labelpad=-0.08,
                     range=ranges,
                     color='k',
-                    quantiles=[0.16, 0.84],
-                    levels=(1-np.exp(-0.5),),
+                    smooth=(0.8,0.8),
+#                    quantiles=[0.16, 0.84],
+                    quantiles=[0.025, 0.975],
+#                    levels=(1-np.exp(-0.5),),
+                    levels=(1 - np.exp( -2.0 ),),
                     truths=np.zeros(len(labels)),
                     show_titles=True,
-                    title_kwargs={"fontsize": 19},
+                    title_kwargs={"fontsize": 17},
                     hist2d_kwargs={"fill_contours": True, "plot_density": True})
                     
             resplot = image.imread(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_bestFits.png")
@@ -130,7 +162,7 @@ class summaryPlotter:
             ax0.axis('off')
             img = ax0.imshow(logo)
 
-            plotfilename = str(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_overlay.png")
+            plotfilename = str(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_overlay.pdf")
 
             fig_overlay.savefig(plotfilename)
             pl.close()
@@ -188,15 +220,21 @@ class summaryPlotter:
 
             pl.figure()
             fig, axes = pl.subplots(len(labels), figsize=(10, 7), sharex=True)
-            samples = sampler.get_chain()
-            for i in range(len(labels)):
-                ax = axes[i]
-                ax.plot(samples[:, :, i], "k", alpha=0.3)
-                ax.set_xlim(0, len(samples))
-                ax.set_ylabel(labels[i])
-                ax.yaxis.set_label_coords(-0.1, 0.5)
+            mc_samples = sampler.get_chain()
+            if (len(labels)==1):
+                axes.plot(mc_samples[:, :, i], "k", alpha=0.3)
+                axes.set_xlim(0, len(mc_samples))
+                axes.set_ylabel(labels[i])
+                axes.yaxis.set_label_coords(-0.1, 0.5)
+            else:
+                for i in range(len(labels)):
+                    ax = axes[i]
+                    ax.plot(mc_samples[:, :, i], "k", alpha=0.3)
+                    ax.set_xlim(0, len(mc_samples))
+                    ax.set_ylabel(labels[i])
+                    ax.yaxis.set_label_coords(-0.1, 0.5)
 
-            axes[-1].set_xlabel("step number");
+                axes[-1].set_xlabel("step number");
 
             pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_walkerPaths.png")
             pl.close()
@@ -225,10 +263,70 @@ class summaryPlotter:
             
             pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "mcmc_params_cov.png")
             pl.close()
-            
+        
             #Write SM pred to text file for validation
             sm_file_name = config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_postFit" + "_sm_pred.txt"
             f = open(sm_file_name, "w")
             sm_pred = str(repr(pb.makeRMPred(np.zeros(len(config.params["config"]["model"]["prior_limits"])))) )
             f.write(sm_pred)
             f.close()
+
+            pl.figure()
+            pl.errorbar(config.x_vals, pb.makeRMPred([0.0,0.0,0.0,0.0,0.0,0.0]), fmt="",  ls='none', xerr=50., label ='SM')
+            id = np.identity(len(config.params["config"]["model"]["prior_limits"]))
+            for op in range(0, len(id)):
+                pl.errorbar(config.x_vals, pb.makeRMPred(id[op]), fmt="",  ls='none', xerr=50., label=config.tex_labels[op])
+                pl.plot(config.x_vals, pb.makeRMPred(id[op]), label=config.tex_labels[op])
+            pl.legend()
+            pl.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_benchmarks.png")
+            pl.close()
+
+
+            id = np.identity(len(config.params["config"]["model"]["prior_limits"]))
+            for op in range(0, len(id)):
+                fig = pl.figure()
+                spec = gridspec.GridSpec(ncols=1, nrows=2, height_ratios=[3, 1], hspace=0.0)
+                ax0 = fig.add_subplot(spec[0])
+                ax0.set_ylabel(r'$\frac{d\sigma_{tWZ}}{p^{Z}_{T}}\;[pb/GeV] $', fontsize = 15)
+                ax0.yaxis.set_label_coords(-0.115, 0.75)
+                ax0.set_xlim(0.0, 500.0)
+                ax0.set_xticklabels([])
+
+                sm_pred =  pb.makeRMPred([0.0,0.0,0.0,0.0,0.0,0.0])
+                ax0.errorbar(config.x_vals, sm_pred, fmt="",  ls='none', xerr=50., label ='SM')
+            
+                plot = ax0.errorbar(config.x_vals, pb.makeRMPred(id[op]), fmt="",  ls='none', xerr=50., label=config.tex_labels[op])
+                clr = plot[0].get_color()
+                eb = ax0.errorbar(config.x_vals, pb.makeRMPred((-1.0)*(id[op])), ecolor=clr, ls='none', xerr=50., label=config.tex_labels[op]+"-")
+                eb[-1][0].set_linestyle('--')
+
+                pl.legend()
+
+                #ratio plot
+                ax2 = fig.add_subplot(spec[1])
+                eb = ax2.errorbar(config.x_vals, np.zeros(len(config.x_vals)), fmt="",  ls='none', xerr=50.0, label=r'')
+                eb[-1][0].set_linestyle('--')
+
+                rel_effect_p = (100.0*(  (pb.makeRMPred(id[op]) - (sm_pred) ) / (sm_pred)) )
+                rel_effect_n = (100.0*(  (pb.makeRMPred((-1.0)*(id[op])) - (sm_pred) ) / (sm_pred)) )
+                plot =  ax2.errorbar(config.x_vals, rel_effect_p, fmt="",  ls='none', xerr=50., label=config.tex_labels[op])
+                clr = plot[0].get_color()
+                eb = ax2.errorbar(config.x_vals, rel_effect_n, fmt="",  ls='none', xerr=50., ecolor=clr, label=config.tex_labels[op])
+                eb[-1][0].set_linestyle('--')
+
+            #ax2.fill_between(bin_edges_for_errors, zeros_for_ratio-diffxs_sys_unc_for_ratio, zeros_for_ratio+sys_unc_for_ratio, facecolor='orange', alpha=0.3, edgecolor='none')
+            #ax2.fill_between(bin_edges_for_errors, zeros_for_ratio-diffxs_stat_unc_for_ratio, zeros_for_ratio+diffxs_stat_unc_for_ratio, facecolor='#1f77b4', alpha=0.3, edgecolor='none')
+
+                rel_effects = np.append(rel_effect_n, rel_effect_p)
+                ax2.set_xlim(0.0, 500.0)
+                ax2.set_ylim((1.2*np.min(rel_effects)), (1.2*np.max(rel_effects)))
+
+                ax2.xaxis.set_label_coords(0.82, -0.25)
+
+                labelx = ax2.set_xlabel(r'$p^{Z}_{T} \;[GeV]$', fontsize = 15)
+                labely = ax2.set_ylabel(r'rel. effect. [%]', fontsize = 12)
+    
+                fig.tight_layout()
+
+                fig.savefig(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_benchmarks_"+str(op)+".png")
+                pl.close()

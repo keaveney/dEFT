@@ -7,8 +7,11 @@ from matplotlib import gridspec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-startRun = 1
-endRun   = 150
+startRun = 271
+endRun   = 300
+
+#startRun = 151
+#endRun   = 180
 
 #startRun = 226
 #endRun   = 243
@@ -21,18 +24,26 @@ nBins = 5
 nOps = 6
 obs = "ptZ"
 
+#/Users/jameskeaveney/dEFT/dEFT/analyses/twz_train_6ops_180_lo/scratch/james/twz_train_6ops_lo/Events
+
+#/Users/jameskeaveney/dEFT/dEFT/analyses/scratch/james/twz_train_6ops_lo/Events
+
 procDirName = "twz_train_6ops_lo"
-procFileStem = "TWZ_6ops_train_"
+procFileStem = "/Users/jameskeaveney/dEFT/dEFT/analyses/TWZ-REGMORPH-6D-FULLCOV-MORPH-RESTRICTED-300-XX-XXX/TWZ_6ops_train_"
 
 def convert(hwufile):
     #print "tools/yoda2array: converting yodafile to numpy array"
     ignore_strings = ["# ID", "# xlow", "Total   ", "Underflow", "Overflow"]
     read = "false"
     central_values = []
+    uncertainties = []
+
     final_array = []
+    final_array_uncertainties = []
     
     for run in range(startRun,(endRun+1)):
         central_values = []
+        uncertainties = []
         if (run < 10):
             run_string = "run_0" + str(run) + "_LO/MADatNLO.HwU"
         else:
@@ -48,16 +59,26 @@ def convert(hwufile):
                         #print("LINE " + str(line))
                         #bin_width = float(line.split("\t")[1]) - float(line.split("\t")[0])
                         central_values.append(float(line.split("   ")[2]) )
+                        uncertainties.append(float(line.split( )[3]) )
                         #print(line.split("   ")[2][1:]  )
                 if ("<\histogram>" in line):
                     read = "false"
-        print(str(central_values) + ",")
         final_array = np.append(final_array, central_values)
+        final_array_uncertainties = np.append(final_array_uncertainties, uncertainties)
+
     final_array.reshape(((endRun-startRun)+1), nBins)
-    return final_array
+    return final_array, final_array_uncertainties
     
-preds = convert("../analyses/twz_train_6ops_lo/Events/")
+#preds, uncs = convert("/Users/jameskeaveney/dEFT/dEFT/analyses/twz_train_6ops_180_lo/scratch/james/twz_train_6ops_lo/Events/")
+preds, uncs = convert("/Users/jameskeaveney/dEFT/dEFT/analyses/scratch/james/twz_train_6ops_lo_restricted/Events/")
+
+
+print("#####  PREDS  ######")
+np.set_printoptions(threshold=np.inf)
 print(repr(preds.reshape(((endRun-startRun)+1),nBins)))
+
+#print("#####  UNC  ######")
+#print(repr(uncs.reshape(((endRun-startRun)+1),nBins)))
 
 def convertRun(runfile):
     #print "tools/yoda2array: converting yodafile to numpy array"
@@ -83,10 +104,11 @@ def convertRun(runfile):
         #print(central_values)
         #central_values.reshape(endRun, nOps)
     return central_values
-    
+
+
 totalPreds = np.array([])
 
-for p in range(0, 5):
+for p in range(9, 10):
     fileName = procFileStem + str(p) + ".txt"
     preds = convertRun(fileName)
     totalPreds = np.concatenate((totalPreds, preds), axis=None)
@@ -99,10 +121,11 @@ np.set_printoptions(threshold=sys.maxsize)
 #print(np.array2string(totalPreds, separator=','))
 
 #print(repr(totalPreds.reshape(endRun,(nOps+1))))
+print(repr(totalPreds.reshape(30,(nOps+1))))
+
 
 #for pred in totalPreds:
 #    print(str(repr(pred)) + ",")
-
 
 
 
