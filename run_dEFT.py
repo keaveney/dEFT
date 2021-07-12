@@ -7,6 +7,7 @@ import emcee
 import time
 import json
 import sys
+import math
 from tools.configReader import configReader
 from multiprocessing import Pool
 import matplotlib.pyplot as pl
@@ -22,7 +23,9 @@ config.init(filename)
 pb = predBuilder()
 
 if(config.params["config"]["model"]["input"] == "numpy"):
-    pb.initRM(len(config.prior_limits), config.samples, config.predictions)
+    pb.initRM(len(config.prior_limits), config.samples, config.predictions, config.kfac)
+    print("SM pred == " +  str(pb.makeRMPred(np.zeros(len(config.prior_limits)))) + " ")
+
 
 ##########################################################
 ########  VALIDATE OF MORPHING MODEL (OPTIONAL)  #########
@@ -50,7 +53,8 @@ def lnprior(c):
 def lnprob(c, data, icov):
     pred =  pb.makeRMPred(c)
     diff = pred - data
-    ll =  (-np.dot(diff,np.dot(icov,diff))) + (lnprior(c))
+    ll =  (-0.5 * np.dot(diff,np.dot(icov,diff))) + (lnprior(c))
+
     return ll
 
 if (len(sys.argv) <= 2):
