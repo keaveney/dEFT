@@ -12,6 +12,9 @@ from tools.configReader import configReader
 from multiprocessing import Pool
 import matplotlib.pyplot as pl
 
+np.random.seed(42) # hard code random seed for reproducibility, could be configurable
+
+
 start = time.time()
 
 ###################################################
@@ -74,6 +77,8 @@ if (len(sys.argv) <= 2):
             sys.exit(0)
     sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob,  pool=pool, args=[config.params["config"]["data"]["central_values"], config.icov])
     """
+    
+    np.random.seed(42) # hard code random seed for reproducibility, could be configurable
     sampler = emcee.EnsembleSampler(nWalkers, ndim, lnprob, args=[config.params["config"]["data"]["central_values"], config.icov])
     pos, prob, state = sampler.run_mcmc(p0, nBurnIn, progress=True)
     sampler.reset()
