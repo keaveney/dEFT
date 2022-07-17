@@ -47,38 +47,47 @@ def plotHWU(hwufile):
     
     scale = lumi*eff*BR
     
-    with open(file_string, 'r') as f:
-        for line in f:
-            if (obs in line):
-                read = "true"
-            if (read == "true"):
+#    with open(file_string, 'r') as f:
+#        for line in f:
+#            if (obs in line):
+#                read = "true"
+#            if (read == "true"):
                 #print("N " + str(len(line.split("   "))))
 
-                if ((len(line.split("   ")) == 11)):
+#                if ((len(line.split("   ")) == 11)):
                     #print("LINE " + str(line))
                     #bin_width = float(line.split("\t")[1]) - float(line.split("\t")[0])
-                    central_values.append(float(line.split("   ")[2]) )
+#                    central_values.append(float(line.split("   ")[2]) )
                     #print(line.split("   ")[2][1:]  )
-                if ("<\histogram>" in line):
-                    read = "false"
+#                if ("<\histogram>" in line):
+#                    read = "false"
     #print(str(central_values) + ",")
     
     #just overwrite with SM pred from regMorph model = in units of pb (cross section, not divided by bin width)
-    central_values = [0.05300887, 0.03509872, 0.0088587,  0.00106592, 0.00062776]
+    #central_values = [0.05300887, 0.03509872, 0.0088587,  0.00106592, 0.00062776]
+    central_values = [0.05432116, 0.03366438, 0.01031508, 0.00257308, 0.00099607]
     
     #this needs a k-factor to bring it to the NLO predcition
     lo_xs = np.sum(central_values)
-    nlo_xs = 0.160
+    nlo_xs = 0.1067
     print("lo_xs = " + str(lo_xs))
     k_fac = nlo_xs/lo_xs
-    #central_values = [x*k_fac for x in central_values]
+        
+    print("kfac = " + str(k_fac))
+
+    central_values = [x*k_fac for x in central_values]
     scaled_xs = np.sum(central_values)
+    print("central_values = " + str(central_values))
+    
     print("scaled_xs = " + str(scaled_xs))
 
     diff_xs = [x/100.0 for x in central_values]
         
     final_values = [x * scale for x in central_values]
     stat_unc = np.sqrt(final_values)
+    
+    print("n exp tot = " + str(np.sum(final_values)))
+
     
     sys_unc = [x * flatSys for x in final_values]
     diff_xs_sys_unc = [x * flatSys for x in diff_xs]
@@ -176,9 +185,11 @@ def plotHWU(hwufile):
     spec = gridspec.GridSpec(ncols=1, nrows=2, height_ratios=[3, 1], hspace=0.0)
     ax0 = fig.add_subplot(spec[0])
     ax0.set_ylabel(r'$\frac{d\sigma_{tWZ}}{p^{Z}_{T}}\;[pb/GeV] $', fontsize = 15)
-    ax0.yaxis.set_label_coords(-0.115, 0.75)
+    ax0.yaxis.set_label_coords(-0.055, 0.75)
     ax0.set_xlim(0.0, 500.0)
     ax0.set_xticklabels([])
+
+    ax0.ticklabel_format(axis="y", style="sci", scilimits=(0,0))
 
     ax0.errorbar(xvals, diff_xs, fmt="",  ls='none', xerr=50., label ='central values')
     ax0.fill_between(bin_edges_for_errors, final_diffxs_values_for_band-diffxs_sys_unc_for_band, final_diffxs_values_for_band+diffxs_sys_unc_for_band, facecolor='orange', alpha=0.3, edgecolor='none', label ='syst. unc.')
@@ -199,7 +210,7 @@ def plotHWU(hwufile):
     
     fig.tight_layout()
 
-    fig.savefig("twz_diff_xs.pdf")
+    fig.savefig("twz_diff_xs.pdf",bbox_inches='tight')
     pl.close()
     
     sys_unc_for_cov = [x * flatSys for x in central_values]

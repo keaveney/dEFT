@@ -6,27 +6,21 @@ import matplotlib.pyplot as pl
 from matplotlib import gridspec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+#startRun = 1
+#endRun   = 180
 
 startRun = 271
 endRun   = 300
 
-#startRun = 151
-#endRun   = 180
-
 #startRun = 226
 #endRun   = 243
-
 
 #startRun = 163
 #endRun   = 180
 
-nBins = 5
-nOps = 6
+nBins = 4
+nOps = 4
 obs = "ptZ"
-
-#/Users/jameskeaveney/dEFT/dEFT/analyses/twz_train_6ops_180_lo/scratch/james/twz_train_6ops_lo/Events
-
-#/Users/jameskeaveney/dEFT/dEFT/analyses/scratch/james/twz_train_6ops_lo/Events
 
 procDirName = "twz_train_6ops_lo"
 procFileStem = "/Users/jameskeaveney/dEFT/dEFT/analyses/TWZ-REGMORPH-6D-FULLCOV-MORPH-RESTRICTED-300-XX-XXX/TWZ_6ops_train_"
@@ -70,12 +64,14 @@ def convert(hwufile):
     return final_array, final_array_uncertainties
     
 #preds, uncs = convert("/Users/jameskeaveney/dEFT/dEFT/analyses/twz_train_6ops_180_lo/scratch/james/twz_train_6ops_lo/Events/")
-preds, uncs = convert("/Users/jameskeaveney/dEFT/dEFT/analyses/scratch/james/twz_train_6ops_lo_restricted/Events/")
-
+#preds, uncs = convert("/Users/jameskeaveney/dEFT/dEFT/analyses/scratch/james/twz_train_6ops_lo_restricted/Events/")
+preds, uncs = convert("/Users/jameskeaveney/dEFT/dEFT/tools/Events/")
 
 print("#####  PREDS  ######")
 np.set_printoptions(threshold=np.inf)
 print(repr(preds.reshape(((endRun-startRun)+1),nBins)))
+
+print("#####  PREDS  ######")
 
 #print("#####  UNC  ######")
 #print(repr(uncs.reshape(((endRun-startRun)+1),nBins)))
@@ -105,10 +101,11 @@ def convertRun(runfile):
         #central_values.reshape(endRun, nOps)
     return central_values
 
-
 totalPreds = np.array([])
 
-for p in range(9, 10):
+procFileStem = "prd_resub/TWZ_4ops_train_"
+
+for p in range(9,10):
     fileName = procFileStem + str(p) + ".txt"
     preds = convertRun(fileName)
     totalPreds = np.concatenate((totalPreds, preds), axis=None)
@@ -121,13 +118,7 @@ np.set_printoptions(threshold=sys.maxsize)
 #print(np.array2string(totalPreds, separator=','))
 
 #print(repr(totalPreds.reshape(endRun,(nOps+1))))
-print(repr(totalPreds.reshape(30,(nOps+1))))
-
+print(repr(totalPreds.reshape((endRun-startRun)+1,(nOps+1))))
 
 #for pred in totalPreds:
 #    print(str(repr(pred)) + ",")
-
-
-
-
-

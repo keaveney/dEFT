@@ -18,11 +18,17 @@ class modelValidator:
         nbins =  len(np.asarray(configTest.params["config"]["model"]["predictions"][0]))
         testSamples = configTest.params["config"]["model"]["samples"]
         testPreds = np.asarray(configTest.params["config"]["model"]["predictions"])
+        kfac = configTest.params["config"]["model"]["inclusive_k_factor"]
+
         #uncertainties = np.asarray(configTest.params["config"]["model"]["uncertainties"])
         
         print("##############################################################")
         print("###############  VALIDATION OF MORPHING MODEL  ###############")
         print("##############################################################")
+        print("k factor                " + str(kfac))
+
+        testPreds = testPreds*kfac
+
         
         ndDistances = []
         chiSqs = []
@@ -39,6 +45,7 @@ class modelValidator:
         for p in range(0, len(testPreds)):
             print("coefficient values at test point =        " + str(testSamples[p]))
             print("prediction at test point =                " + str(testPreds[p]))
+
             testPred = testPreds[p]
             #uncs = uncertainties[p]
 
@@ -86,13 +93,13 @@ class modelValidator:
         print ("morph preds = " + str(len(morphPreds)))
         print ("test preds = " + str(len(testPreds)))
         
-        residuals = (testPreds.flatten()- morphPreds)/(testPreds.flatten())
+        residuals = (testPreds.flatten() - morphPreds)/(testPreds.flatten())
         _, bins, _ = pl.hist(residuals, 15, density=1, alpha=0.5)
 
         mu, sigma = scipy.stats.norm.fit(residuals)
         
         print ("% residual = " + str(100.0*(residuals)))
-        print ("mean/sigma residuala = " + str(mu) + ", " + str(sigma))
+        print ("mean/sigma residuals = " + str(mu) + ", " + str(sigma))
 
         #fig = pl.errorbar(x, bestFits, yerr=[marginUncsDown, marginUncsUp], fmt='o')
         #fig = pl.errorbar(itr, morphPreds, fmt='o', label="morph model")

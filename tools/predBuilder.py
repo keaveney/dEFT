@@ -38,7 +38,7 @@ class predBuilder:
             return X
             
         def initRM(self, nOps, samples, preds, kfac):
-  
+        
             if (len(preds) < self.nSamples(nOps)):
                 raise TypeError("morphing with " + str(nOps) + " coefficients requires at least " + str(self.nSamples(nOps)) + " samples,  but only " + str(len(preds)) + " are provided")
             
@@ -55,16 +55,16 @@ class predBuilder:
             model = LinearRegression()
 
             # fit model
-
             model.fit(cInputAr, preds)
-
+            
             self.model = model
+
             
         def makeRMPred(self,c):
 
             c = np.append(1.0, c)
             cInputAr = self.makeCoeffPoint(c)
-
+            #print("make RMPRED with "   +  str(cInputAr))
             pred = self.model.predict(cInputAr)
             
             return pred[0]

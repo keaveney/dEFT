@@ -137,7 +137,6 @@ def plotHWU(hwufile):
         diffxs_sys_unc_for_ratio = np.append( ((diff_xs_sys_unc[len(xvals) -  bin - 1])/(diff_xs[len(xvals) -  bin - 1]))*100.0 , diffxs_sys_unc_for_ratio)
         diffxs_sys_unc_for_ratio = np.append( ((diff_xs_sys_unc[len(xvals) -  bin - 1])/(diff_xs[len(xvals) -  bin - 1]))*100.0 , diffxs_sys_unc_for_ratio)
         
-
     #print("befe = " + str(bin_edges_for_errors))
     #print("fvefe = " + str(final_values_for_band  ))
     #print("uefe = " + str(stat_unc_for_band ))
@@ -185,7 +184,6 @@ def plotHWU(hwufile):
     #ax0.ticklabel_format(style='sci')
     ax0.ticklabel_format(axis='y', style='sci', scilimits=(-3, 3), useOffset=False)
 
-
     pl.legend()
 
     #ratio plot
@@ -203,6 +201,78 @@ def plotHWU(hwufile):
     fig.tight_layout()
 
     fig.savefig("twz_diff_xs.pdf")
+    
+    ### diff xsection plot with operator effects
+    fig = pl.figure(figsize=(5, 9))
+    pl.rcParams['image.cmap'] = 'Pastel1'
+    spec = gridspec.GridSpec(ncols=1, nrows=8, height_ratios=[2.5, 1, 1, 1, 1, 1, 1, 1], hspace=0.0)
+    ax0 = fig.add_subplot(spec[0])
+    ax0.set_ylabel(r'$\frac{d\sigma_{tWZ}}{p^{Z}_{T}}\;[pb\; GeV^{-1}] $', fontsize = 15)
+    ax0.yaxis.set_label_coords(-0.06, 0.6)
+    ax0.set_xlim(0.0, 500.0)
+    ax0.set_xticklabels([])
+
+    ax0.errorbar(xvals, diff_xs, fmt="",  ls='none', xerr=50., label ='central values')
+    ax0.fill_between(bin_edges_for_errors, final_diffxs_values_for_band-diffxs_sys_unc_for_band, final_diffxs_values_for_band+diffxs_sys_unc_for_band, facecolor='orange', alpha=0.3, edgecolor='none', label ='syst. unc.')
+    ax0.fill_between(bin_edges_for_errors, final_diffxs_values_for_band-diffxs_stat_unc_for_band, final_diffxs_values_for_band+diffxs_stat_unc_for_band, facecolor='#1f77b4', alpha=0.3, edgecolor='none', label ='stat. unc.')
+    #ax0.ticklabel_format(style='sci')
+    ax0.ticklabel_format(axis='y', style='sci', scilimits=(-3, 3), useOffset=False)
+
+    pl.legend()
+
+    #ratio plot
+    ax2 = fig.add_subplot(spec[1])
+    ax2.errorbar(xvals, np.zeros(len(xvals)), fmt="",  ls='none', xerr=50.0, label=r'$N_{tWZ}$')
+    ax2.fill_between(bin_edges_for_errors, zeros_for_ratio-diffxs_sys_unc_for_ratio, zeros_for_ratio+sys_unc_for_ratio, facecolor='orange', alpha=0.3, edgecolor='none')
+    ax2.fill_between(bin_edges_for_errors, zeros_for_ratio-diffxs_stat_unc_for_ratio, zeros_for_ratio+diffxs_stat_unc_for_ratio, facecolor='#1f77b4', alpha=0.3, edgecolor='none')
+    ax2.set_xlim(0.0, 500.0)
+    ax2.set_xticklabels([])
+
+    smeft_preds = np.array( [ [0.05394412, 0.03393586, 0.01046979, 0.00303195, 0.00095483],
+    [0.0677107,  0.04120467, 0.01246974, 0.00375727, 0.0012688],
+    [0.05572474, 0.03449813, 0.01049137, 0.00320375, 0.00104812],
+    [0.05441161, 0.03512581, 0.01124541, 0.00374836, 0.0014506 ],
+    [0.05289766, 0.03561033, 0.01316591, 0.00538783, 0.00258019],
+    [0.06113224, 0.03949186, 0.01325608, 0.00492008, 0.00209033]])
+    
+    smeft_preds = np.true_divide(smeft_preds, 100.0)
+    
+    tex_labels = ["$c^{3}_\\phi Q}$", "$c^{M}_\\phi Q}$","$c_{tZ}$","$c_{t W}$","$c_{tG}$"]
+    
+    colors = ['b' ,'g', 'r', 'c', 'm', 'y']
+
+    for p in range(1, len(smeft_preds)):
+        ax2 = fig.add_subplot(spec[p+1])
+        ax2.annotate(tex_labels[p-1], # this is the text
+                 (50.0, 2.5), # these are the coordinates to position the label
+                 textcoords="offset points", # how to position the text
+                 xytext=(0,10), # distance from text to points (x,y)
+                 ha='center')
+        ax2.errorbar(xvals, ( 100.0*((smeft_preds[p] - smeft_preds[0]) /smeft_preds[0])), fmt="", alpha=0.8, ls='none', xerr=50.0, label=tex_labels[p-1])
+        if (p <= 2):
+            ax2.set_ylim(0.0, 40.0)
+        elif (p > 2):
+            ax2.set_ylim(-0.5, 180.0)
+            #ax2.set_yticklabels([0,50])
+
+        ax2.set_xlim(0.0, 500.0)
+        ax2.set_xticklabels([])
+
+        #ax2.yaxis.set_ticks([0,1,3,4,5,6])
+
+    ax2.set_xticklabels([0,100,200,300,400,500])
+    ax2.set_xlim(0.0, 500.0)
+    ax2.xaxis.set_label_coords(0.82, -0.4)
+
+    labelx = ax2.set_xlabel(r'$p^{Z}_{T} \;[GeV]$', fontsize = 15)
+    labely = ax2.set_ylabel(r'(SMEFT-SM)/SM', fontsize = 12)
+    ax2.yaxis.set_label_coords(-0.115, 3.2)
+
+    fig.tight_layout()
+
+    fig.savefig("twz_diff_xs_smeft.pdf")
+    
+    
     pl.close()
     
     sys_unc_for_cov = [x * flatSys for x in central_values]

@@ -17,13 +17,15 @@ from predBuilder import predBuilder
 
 #cHWB:3 cW,:6, cHB:10, cHt:15, ctZ:22, ctW:23, ctG:24,
 
-nTasks  = 1
+nTasks  = 3
 nSamples = 30
 
 #ops = ["3", "6", "10", "15", "22", "23", "24"]
 
 # SMEFTatNLO list
-ops = ["12", "13", "15", "22", "23", "24"]
+#ops = ["12", "13", "15", "22", "23", "24"]
+
+ops = ["12", "22", "23", "24"]
 
 nOps = len(ops)
 

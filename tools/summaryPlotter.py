@@ -42,6 +42,7 @@ class summaryPlotter:
                 else:
                     label_string_bestfit = label_string_bestfit + coefficients[c] + " = " + '%.1f' % mcmc_params[c] + ", "
 
+            print(" xvals = " + str(config.x_vals)  +  "  pb.makeRMPred(mcmc_params) "   +  str(pb.makeRMPred(mcmc_params))  )
             pl.errorbar(config.x_vals, pb.makeRMPred(mcmc_params), fmt="m", xerr=0.0, yerr=0.0, label=label_string_bestfit)
             pl.errorbar(config.x_vals, config.params["config"]["data"]["central_values"], fmt="o",xerr=0.25, yerr=0.05, label=data_label)
             pl.axis([config.x_vals[0]-0.25, config.x_vals[len(config.x_vals)-1]+0.25, min_val, max_val])
@@ -66,8 +67,8 @@ class summaryPlotter:
             fig = corner.corner(samples, labels=config.tex_labels,
                                 label_kwargs={"fontsize": 18},
                                 range=ranges,
-                                quantiles=[0.16, 0.84],
-                                levels=(1-np.exp(-0.5),),
+                                #quantiles=[0.16, 0.84],
+                                #levels=(1-np.exp(-0.5),),
                                 truths=np.zeros(len(labels)),
                                 show_titles=True, title_kwargs={"fontsize": 18})
 
@@ -98,8 +99,13 @@ class summaryPlotter:
                 marginUncsUp.append(q[1])
                 marginUncsDown.append(q[0])
                 
+                #q_16, q_50, q_84 = quantile(x, [0.16, 0.5, 0.84],weights=weights)
+                
                 mcmc95 = np.percentile(samples[:, i], [2.5, 50.0, 97.5])
+                #print(" np.percentile(samples[:, i], [2.5, 50.0, 97.5]) =   " + str(np.percentile(samples[:, i], [2.5, 50.0, 97.5]))   )
                 q = np.diff(mcmc95)
+                #print("q =   " + str(q)  )
+
                 marginUncsUp95.append(q[1])
                 marginUncsDown95.append(q[0])
 
@@ -107,10 +113,29 @@ class summaryPlotter:
             pl.tight_layout()
             pl.gcf().subplots_adjust(bottom=0.15)
 
-            marginUncsDown95ForPlot = np.array(marginUncsDown95) - np.array(bestFits)
-            marginUncsUp95ForPlot = np.array(marginUncsUp95) - np.array(bestFits)
+            #marginUncsDown95ForPlot = np.array(marginUncsDown95) - np.array(bestFits)
+            #marginUncsUp95ForPlot = np.array(marginUncsUp95) - np.array(bestFits)
+            
+            marginUncsDown95ForPlot = np.array(marginUncsDown95)
+            marginUncsUp95ForPlot = np.array(marginUncsUp95) 
 
-            fig = pl.errorbar(x, np.zeros(len(labels)), yerr=[marginUncsDown95ForPlot, marginUncsUp95ForPlot], fmt='none', linestyle=None, elinewidth=18, label=r' median and 95% CI')
+            fig = pl.errorbar(x, np.zeros(len(labels)), yerr=[marginUncsDown95ForPlot, marginUncsUp95ForPlot], fmt='none', linestyle=None, elinewidth=18, label=r'all bins')
+                        
+            #marginUncsDown95ForPlot_validty = np.array([2.485571981823523569e+00, 3.814826737191868933e+00, 1.719548151262410673e+00, 2.106877931308388519e+00])
+            #marginUncsUp95ForPlot_validty = np.array([1.750224475309016592e+00, 3.712112260384360152e+00, 1.859996135276679396e+00, 1.954559834197093338e+00])
+
+            marginUncsDown95ForPlot_validty = np.array([2.497898126870446767e+00, 4.027889810657558911e+00, 1.820171638994192431e+00, 2.250182560665191733e+00])
+            marginUncsUp95ForPlot_validty = np.array([1.955803247345035745e+00, 3.794527477091643064e+00, 1.965576305035904747e+00, 2.064912976805433065e+00])
+
+            fig = pl.errorbar(x, np.zeros(len(labels)), yerr=[marginUncsDown95ForPlot_validty,marginUncsUp95ForPlot_validty], fmt='none', linestyle=None, alpha=0.3, elinewidth=18, label=r'last bin omitted')
+            
+            rangeUp = np.max(marginUncsUp95ForPlot_validty)*(1.2)
+            rangeDown = (-1.0)*(np.max(marginUncsDown95ForPlot_validty))*(1.2)
+
+            pl.ylim([rangeDown, rangeUp])
+
+            pl.legend(loc=1, fontsize = 16)
+                
             pl.xticks(range(len(labels)), config.tex_labels, rotation='45', fontsize = 25)
             pl.yticks(fontsize = 22)
             pl.locator_params(axis='y', nbins=6)
@@ -135,20 +160,20 @@ class summaryPlotter:
             ############################################
             ######## Corner with 1-d CL overlaid  ######
             ############################################
-            
+                        
             fig_overlay = corner.corner(samples, labels=config.tex_labels,
-                    label_kwargs={"fontsize": 23},
-                    labelpad=-0.08,
+                    label_kwargs={"fontsize": 22},
+                    labelpad=-0.12,
                     range=ranges,
                     color='k',
                     smooth=(0.8,0.8),
 #                    quantiles=[0.16, 0.84],
-                    quantiles=[0.025, 0.975],
+                    #quantiles=[0.025, 0.975],
 #                    levels=(1-np.exp(-0.5),),
-                    levels=(1 - np.exp( -2.0 ),),
+                    #levels=(1 - np.exp( -2.0 ),),
                     truths=np.zeros(len(labels)),
                     show_titles=True,
-                    title_kwargs={"fontsize": 17},
+                    title_kwargs={"fontsize": 15},
                     hist2d_kwargs={"fill_contours": True, "plot_density": True})
                     
             resplot = image.imread(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_bestFits.png")
@@ -161,6 +186,8 @@ class summaryPlotter:
             ax0 = fig_overlay.add_subplot(5,5,15)
             ax0.axis('off')
             img = ax0.imshow(logo)
+            
+            fig_overlay.tight_layout()
 
             plotfilename = str(config.params["config"]["run_name"] + "_results/" + config.params["config"]["run_name"] + "_overlay.pdf")
 
@@ -241,7 +268,7 @@ class summaryPlotter:
                         
             #covariance matrix of coefficicents
             fig, ax = pl.subplots()
-            im = ax.imshow(mcmc_params_cov, cmap=pl.cm.Blues)
+            #im = ax.imshow(mcmc_params_cov, cmap=pl.cm.Blues)
             
             ax.set_xticks(np.arange(len(config.tex_labels)))
             ax.set_yticks(np.arange(len(config.tex_labels)))
@@ -272,7 +299,7 @@ class summaryPlotter:
             f.close()
 
             pl.figure()
-            pl.errorbar(config.x_vals, pb.makeRMPred([0.0,0.0,0.0,0.0,0.0,0.0]), fmt="",  ls='none', xerr=50., label ='SM')
+            #pl.errorbar(config.x_vals, pb.makeRMPred([0.0,0.0,0.0,0.0,0.0,0.0]), fmt="",  ls='none', xerr=50., label ='SM')
             id = np.identity(len(config.params["config"]["model"]["prior_limits"]))
             for op in range(0, len(id)):
                 pl.errorbar(config.x_vals, pb.makeRMPred(id[op]), fmt="",  ls='none', xerr=50., label=config.tex_labels[op])
@@ -292,39 +319,51 @@ class summaryPlotter:
                 ax0.set_xlim(0.0, 500.0)
                 ax0.set_xticklabels([])
 
-                sm_pred =  pb.makeRMPred([0.0,0.0,0.0,0.0,0.0,0.0])
+                sm_pred =  pb.makeRMPred(np.zeros(len(config.params["config"]["model"]["prior_limits"])))
                 ax0.errorbar(config.x_vals, sm_pred, fmt="",  ls='none', xerr=50., label ='SM')
             
-                plot = ax0.errorbar(config.x_vals, pb.makeRMPred(id[op]), fmt="",  ls='none', xerr=50., label=config.tex_labels[op])
+                plot = ax0.errorbar(config.x_vals, pb.makeRMPred(id[op]), fmt="", ls='none', xerr=50., label=config.tex_labels[op])
                 clr = plot[0].get_color()
-                eb = ax0.errorbar(config.x_vals, pb.makeRMPred((-1.0)*(id[op])), ecolor=clr, ls='none', xerr=50., label=config.tex_labels[op]+"-")
-                eb[-1][0].set_linestyle('--')
+                #eb = ax0.errorbar(config.x_vals, pb.makeRMPred((-1.0)*(id[op])), ecolor=clr, ls='--', xerr=50., label=config.tex_labels[op]+"-")
+                #eb[-1][0].set_linestyle('--')
 
                 pl.legend()
 
                 #ratio plot
                 ax2 = fig.add_subplot(spec[1])
-                eb = ax2.errorbar(config.x_vals, np.zeros(len(config.x_vals)), fmt="",  ls='none', xerr=50.0, label=r'')
-                eb[-1][0].set_linestyle('--')
+                #eb = ax2.errorbar(config.x_vals, np.zeros(len(config.x_vals)), fmt="",  ls='none', xerr=50.0, label=r'')
+                neg_rat =  (pb.makeRMPred((-1.0)*(id[op]))) / (sm_pred)
+                pos_rat =  (  (pb.makeRMPred(id[op]) - (sm_pred) ) / (sm_pred))
+                
+                print("pos rat argument = " + str(id[op])  )
+                
+                #eb = ax2.errorbar(config.x_vals, neg_rat, fmt="",  ls='--', xerr=50.0, label=r'')
+                #clr = eb[0].get_color()
 
-                rel_effect_p = (100.0*(  (pb.makeRMPred(id[op]) - (sm_pred) ) / (sm_pred)) )
-                rel_effect_n = (100.0*(  (pb.makeRMPred((-1.0)*(id[op])) - (sm_pred) ) / (sm_pred)) )
-                plot =  ax2.errorbar(config.x_vals, rel_effect_p, fmt="",  ls='none', xerr=50., label=config.tex_labels[op])
-                clr = plot[0].get_color()
-                eb = ax2.errorbar(config.x_vals, rel_effect_n, fmt="",  ls='none', xerr=50., ecolor=clr, label=config.tex_labels[op])
-                eb[-1][0].set_linestyle('--')
+                eb = ax2.errorbar(config.x_vals, pos_rat, fmt="", ecolor=clr, ls='none', xerr=50.0, label=r'')
+
+                #eb[-1][0].set_linestyle('--')
+
+                #rel_effect_p = (  (pb.makeRMPred(id[op]) - (sm_pred) ) / (sm_pred))
+                #rel_effect_n = (100.0*(  (pb.makeRMPred((-1.0)*(id[op])) - (sm_pred) ) / (sm_pred)) )
+                #plot =  ax2.errorbar(config.x_vals, rel_effect_p, fmt="",  ls='none', xerr=50., label=config.tex_labels[op])
+                #clr = plot[0].get_color()
+                #eb = ax2.errorbar(config.x_vals, rel_effect_n, fmt="",  ls='none', xerr=50., ecolor=clr, label=config.tex_labels[op])
+                #eb[-1][0].set_linestyle('--')
 
             #ax2.fill_between(bin_edges_for_errors, zeros_for_ratio-diffxs_sys_unc_for_ratio, zeros_for_ratio+sys_unc_for_ratio, facecolor='orange', alpha=0.3, edgecolor='none')
             #ax2.fill_between(bin_edges_for_errors, zeros_for_ratio-diffxs_stat_unc_for_ratio, zeros_for_ratio+diffxs_stat_unc_for_ratio, facecolor='#1f77b4', alpha=0.3, edgecolor='none')
 
-                rel_effects = np.append(rel_effect_n, rel_effect_p)
+                #rel_effects = np.append(rel_effect_n, rel_effect_p)
                 ax2.set_xlim(0.0, 500.0)
-                ax2.set_ylim((1.2*np.min(rel_effects)), (1.2*np.max(rel_effects)))
+                #ax2.set_ylim((1.2*np.min(rel_effects)), (1.2*np.max(rel_effects)))
 
                 ax2.xaxis.set_label_coords(0.82, -0.25)
+                start, end = ax.get_xlim()
+                ax2.yaxis.set_ticks(np.arange(0.75, 3.5, 0.5))
 
                 labelx = ax2.set_xlabel(r'$p^{Z}_{T} \;[GeV]$', fontsize = 15)
-                labely = ax2.set_ylabel(r'rel. effect. [%]', fontsize = 12)
+                labely = ax2.set_ylabel(r'SMEFT/SM', fontsize = 12)
     
                 fig.tight_layout()
 

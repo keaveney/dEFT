@@ -27,9 +27,19 @@ pb = predBuilder()
 
 if(config.params["config"]["model"]["input"] == "numpy"):
     pb.initRM(len(config.prior_limits), config.samples, config.predictions, config.kfac)
-    print("SM pred == " +  str(pb.makeRMPred(np.zeros(len(config.prior_limits)))) + " ")
+    print("prior lims  = " + str(config.prior_limits)  )
+    print("Benchmark predictions:")
+    vals = np.zeros(len(config.prior_limits))
+    print("    SM pred == " +  str(pb.makeRMPred(vals)) + " ")
+    print("Number of samples:"  + str(len(config.samples)))
 
+    for coeff in range(0, len(config.prior_limits)):
+        vals = np.zeros(len(config.prior_limits))
+        vals[coeff] = 1.0
+        print("   SMEFT coeff pred == " +  str(pb.makeRMPred(vals)) + " ")
 
+        
+    
 ##########################################################
 ########  VALIDATE OF MORPHING MODEL (OPTIONAL)  #########
 ##########################################################
